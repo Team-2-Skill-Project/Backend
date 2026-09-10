@@ -87,8 +87,15 @@ test('profile records retain their fields casts and owner', function (string $mo
 test('optional record fields may be omitted and booleans default to false', function () {
     $profile = CandidateProfile::factory()->create();
 
-    $education = $profile->educations()->create([])->refresh();
-    $experience = $profile->experiences()->create(['job_title' => 'Developer', 'company_name' => 'Example'])->refresh();
+    $education = $profile->educations()->create([
+        'institution' => 'Cairo University',
+    ])->refresh();
+
+    $experience = $profile->experiences()->create([
+        'job_title' => 'Developer',
+        'company_name' => 'Example',
+    ])->refresh();
+
     $preference = $profile->careerPreference()->create([])->refresh();
 
     expect($education->source)->toBeNull();
@@ -104,7 +111,7 @@ test('duplicate one to one records and taxonomy associations are rejected', func
 })->with([
     'user profile' => [CandidateProfile::class, 'user_id'],
     'career preference' => [CareerPreference::class, 'candidate_profile_id'],
-    'skill name' => [Skill::class, 'name'],
+    'skill normalized name' => [Skill::class, 'normalized_name'],
     'candidate skill' => [CandidateSkill::class, 'candidate_profile_id,skill_id'],
 ]);
 

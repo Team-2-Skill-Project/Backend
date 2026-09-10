@@ -26,7 +26,6 @@ test('trusted Google login creates a verified user without phone onboarding or O
     $user = User::sole();
     $this->assertAuthenticatedAs($user);
     expect($user->email_verified_at)->not->toBeNull();
-    expect($user->phone_verified_at)->toBeNull();
     expect($user->password)->toBeNull();
     Mail::assertNothingSent();
     $this->get(route('dashboard'))->assertOk();

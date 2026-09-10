@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -34,6 +35,18 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, Passk
         return $this->hasOne(CandidateProfile::class);
     }
 
+    /** @return HasMany<Company, $this> */
+    public function companiesCreated(): HasMany
+    {
+        return $this->hasMany(Company::class, 'created_by');
+    }
+
+    /** @return HasMany<JobPost, $this> */
+    public function jobPostsCreated(): HasMany
+    {
+        return $this->hasMany(JobPost::class, 'created_by');
+    }
+
     public function sendEmailVerificationNotification(): void
     {
         app(EmailOtpService::class)->send($this, EmailOtp::EMAIL_VERIFICATION);
@@ -44,7 +57,6 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, Passk
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'phone_verified_at' => 'datetime',
             'two_factor_confirmed_at' => 'datetime',
         ];
     }

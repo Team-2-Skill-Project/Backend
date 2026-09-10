@@ -4,7 +4,6 @@ use App\Mail\EmailOtpMail;
 use App\Models\EmailOtp;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -104,19 +103,6 @@ test('unknown emails receive a generic 422 validation response without sending a
 
     $this->assertDatabaseCount('email_otps', 0);
     Mail::assertNothingSent();
-});
-
-test('legacy phone codes cannot authorize email recovery', function () {
-    $user = User::factory()->unverified()->create(['email' => 'reset@example.com']);
-    DB::table('phone_otps')->insert([
-        'user_id' => $user->id, 'purpose' => 'password_reset',
-        'code_hash' => Hash::make('123456'), 'expires_at' => now()->addMinutes(10),
-    ]);
-
-    $this->postJson('/api/auth/forgot-password/verify-otp', ['email' => $user->email, 'otp' => '123456'])
-        ->assertUnprocessable()->assertJsonValidationErrors('otp');
-
-    expect(Hash::check('password', $user->fresh()->password))->toBeTrue();
 });
 
 test('invalid emails receive 422 without sending a code', function (mixed $email) {

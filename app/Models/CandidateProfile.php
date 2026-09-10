@@ -87,6 +87,12 @@ class CandidateProfile extends Model
         return $this->hasMany(CandidateSkill::class);
     }
 
+    /** @return HasMany<CvDocument, $this> */
+    public function cvDocuments(): HasMany
+    {
+        return $this->hasMany(CvDocument::class);
+    }
+
     /** @return BelongsToMany<Skill, $this> */
     public function skills(): BelongsToMany
     {
