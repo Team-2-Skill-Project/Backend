@@ -4,7 +4,9 @@ namespace App\Actions\Fortify;
 
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
+use App\Models\EmailOtp;
 use App\Models\User;
+use App\Services\EmailOtpService;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
@@ -21,15 +23,20 @@ class CreateNewUser implements CreatesNewUsers
     {
         Validator::make($input, [
             ...$this->profileRules(),
-            'phone' => ['required', 'string', 'max:255', 'unique:users,phone'],
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
-            'phone' => $input['phone'],
             'password' => $input['password'],
         ]);
+
+        app(EmailOtpService::class)->send(
+            $user,
+            EmailOtp::EMAIL_VERIFICATION
+        );
+
+        return $user;
     }
 }

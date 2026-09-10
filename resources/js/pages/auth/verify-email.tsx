@@ -1,46 +1,21 @@
-// Components
-import { Form, Head } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
+import VerifyEmailCode from '@/components/verify-email-code';
 import TextLink from '@/components/text-link';
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
-import { logout } from '@/routes';
-import { send } from '@/routes/verification';
+import { dashboard, logout } from '@/routes';
 
-export default function VerifyEmail({ status }: { status?: string }) {
+export default function VerifyEmail({ email }: { email: string }) {
     return (
         <>
-            <Head title="Email verification" />
-
-            {status === 'verification-link-sent' && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
-                    A new verification link has been sent to the email address
-                    you provided during registration.
-                </div>
-            )}
-
-            <Form {...send.form()} className="space-y-6 text-center">
-                {({ processing }) => (
-                    <>
-                        <Button disabled={processing} variant="secondary">
-                            {processing && <Spinner />}
-                            Resend verification email
-                        </Button>
-
-                        <TextLink
-                            href={logout()}
-                            className="mx-auto block text-sm"
-                        >
-                            Log out
-                        </TextLink>
-                    </>
-                )}
-            </Form>
+            <VerifyEmailCode
+                email={email}
+                onVerified={() => router.visit(dashboard())}
+            />
+            <TextLink href={logout()}>Log out</TextLink>
         </>
     );
 }
 
 VerifyEmail.layout = {
     title: 'Email verification',
-    description:
-        'Please verify your email address by clicking on the link we just emailed to you.',
+    description: 'Enter the 6-digit code sent to your email.',
 };

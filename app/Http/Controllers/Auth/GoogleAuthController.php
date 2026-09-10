@@ -125,7 +125,7 @@ class GoogleAuthController extends Controller
             Auth::guard('web')->login($user);
             $request->session()->regenerate();
 
-            return redirect()->route($user->phone && $user->phone_verified_at ? 'dashboard' : 'phone.onboarding')
+            return redirect()->route('dashboard')
                 ->withHeaders(['Cache-Control' => 'no-store', 'Referrer-Policy' => 'no-referrer']);
         } catch (Throwable $exception) {
             Log::warning('Google OAuth failed', ['exception' => $exception::class]);
