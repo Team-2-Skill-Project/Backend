@@ -4,30 +4,30 @@ namespace App\Http\Controllers\Auth;
 
 use App\Concerns\PasswordValidationRules;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\PhonePasswordResetRequest;
-use App\Models\PhoneOtp;
+use App\Http\Requests\Auth\EmailPasswordResetRequest;
+use App\Models\EmailOtp;
 use App\Models\User;
-use App\Services\WhatsAppDeliveryException;
-use App\Services\WhatsAppService;
+use App\Services\EmailOtpService;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
-class PhonePasswordResetController extends Controller
+class EmailPasswordResetController extends Controller
 {
     use PasswordValidationRules;
 
-    public function store(PhonePasswordResetRequest $request, WhatsAppService $whatsAppService): JsonResponse
+    public function store(EmailPasswordResetRequest $request, EmailOtpService $emailOtpService): JsonResponse
     {
         try {
-            return DB::transaction(function () use ($request, $whatsAppService): JsonResponse {
-                $user = User::where('phone', $request->validated('phone'))->lockForUpdate()->first();
+            return DB::transaction(function () use ($request, $emailOtpService): JsonResponse {
+                $user = User::whereRaw('LOWER(email) = ?', [Str::lower($request->validated('email'))])->lockForUpdate()->first();
 
                 if (! $user) {
-                    return $this->invalid('phone', 'Unable to send a reset code. Check the phone number and try again.');
+                    return $this->invalid('email', 'Unable to send a reset code. Check the email address and try again.');
                 }
 
                 $previousOtp = $this->resetOtp($user);
@@ -37,50 +37,39 @@ class PhonePasswordResetController extends Controller
                         ->header('Retry-After', '60');
                 }
 
-                PhoneOtp::where('user_id', $user->id)->where('purpose', PhoneOtp::PASSWORD_RESET)->delete();
-                $otp = random_int(100000, 999999);
-                PhoneOtp::create([
-                    'user_id' => $user->id,
-                    'purpose' => PhoneOtp::PASSWORD_RESET,
-                    'code_hash' => Hash::make((string) $otp),
-                    'expires_at' => now()->addMinutes(5),
-                    'attempts' => 0,
-                    'last_sent_at' => now(),
-                ]);
+                $emailOtpService->send($user, EmailOtp::PASSWORD_RESET);
 
-                $whatsAppService->sendOtp($user->phone, $otp);
-
-                return response()->json(['message' => 'A password reset code has been sent to your WhatsApp.']);
+                return response()->json(['message' => 'A password reset code has been sent to your email.']);
             });
-        } catch (WhatsAppDeliveryException) {
-            return response()->json(['message' => 'Unable to send the WhatsApp code. Please try again shortly.'], 503);
+        } catch (TransportExceptionInterface) {
+            return response()->json(['message' => 'Unable to send the email code. Please try again shortly.'], 503);
         }
     }
 
-    public function verifyOtp(PhonePasswordResetRequest $request): JsonResponse
+    public function verifyOtp(EmailPasswordResetRequest $request): JsonResponse
     {
         $validated = $request->validate(['otp' => ['required', 'string', 'regex:/^[0-9]{6}$/']]);
 
         return DB::transaction(function () use ($request, $validated): JsonResponse {
-            $user = User::where('phone', $request->validated('phone'))->lockForUpdate()->first();
-            $phoneOtp = $user ? $this->resetOtp($user) : null;
+            $user = User::whereRaw('LOWER(email) = ?', [Str::lower($request->validated('email'))])->lockForUpdate()->first();
+            $emailOtp = $user ? $this->resetOtp($user) : null;
 
-            if (! $phoneOtp || $phoneOtp->reset_token_hash || now()->greaterThanOrEqualTo($phoneOtp->expires_at)) {
+            if (! $emailOtp || $emailOtp->reset_token_hash || now()->greaterThanOrEqualTo($emailOtp->expires_at)) {
                 return $this->invalid('otp', 'The code is invalid or expired. Request a new code.');
             }
 
-            if ($phoneOtp->attempts >= 5) {
+            if ($emailOtp->attempts >= 5) {
                 return response()->json(['message' => 'Too many invalid attempts. Request a new code.'], 429);
             }
 
-            if (! Hash::check($validated['otp'], $phoneOtp->code_hash)) {
-                $phoneOtp->increment('attempts');
+            if (! Hash::check($validated['otp'], $emailOtp->code_hash)) {
+                $emailOtp->increment('attempts');
 
                 return $this->invalid('otp', 'The code is invalid or expired. Request a new code.');
             }
 
             $resetToken = Str::random(64);
-            $phoneOtp->update([
+            $emailOtp->update([
                 'reset_token_hash' => Hash::make($resetToken),
                 'reset_token_expires_at' => now()->addMinutes(10),
             ]);
@@ -93,7 +82,7 @@ class PhonePasswordResetController extends Controller
         });
     }
 
-    public function resetPassword(PhonePasswordResetRequest $request): JsonResponse
+    public function resetPassword(EmailPasswordResetRequest $request): JsonResponse
     {
         $validated = $request->validate([
             'reset_token' => ['required', 'string', 'size:64'],
@@ -101,12 +90,12 @@ class PhonePasswordResetController extends Controller
         ]);
 
         return DB::transaction(function () use ($request, $validated): JsonResponse {
-            $user = User::where('phone', $request->validated('phone'))->lockForUpdate()->first();
-            $phoneOtp = $user ? $this->resetOtp($user) : null;
+            $user = User::whereRaw('LOWER(email) = ?', [Str::lower($request->validated('email'))])->lockForUpdate()->first();
+            $emailOtp = $user ? $this->resetOtp($user) : null;
 
-            if (! $phoneOtp?->reset_token_hash || ! $phoneOtp->reset_token_expires_at
-                || now()->greaterThanOrEqualTo($phoneOtp->reset_token_expires_at)
-                || ! Hash::check($validated['reset_token'], $phoneOtp->reset_token_hash)) {
+            if (! $emailOtp?->reset_token_hash || ! $emailOtp->reset_token_expires_at
+                || now()->greaterThanOrEqualTo($emailOtp->reset_token_expires_at)
+                || ! Hash::check($validated['reset_token'], $emailOtp->reset_token_hash)) {
                 return $this->invalid('reset_token', 'The password reset session is invalid or expired. Request a new code.');
             }
 
@@ -114,7 +103,7 @@ class PhonePasswordResetController extends Controller
             $user->setRememberToken(Str::random(60));
             $user->save();
 
-            PhoneOtp::where('user_id', $user->id)->where('purpose', PhoneOtp::PASSWORD_RESET)->delete();
+            EmailOtp::where('user_id', $user->id)->where('purpose', EmailOtp::PASSWORD_RESET)->delete();
             Password::broker(config('fortify.passwords'))->deleteToken($user);
             event(new PasswordReset($user));
 
@@ -122,10 +111,11 @@ class PhonePasswordResetController extends Controller
         });
     }
 
-    private function resetOtp(User $user): ?PhoneOtp
+    private function resetOtp(User $user): ?EmailOtp
     {
-        return PhoneOtp::where('user_id', $user->id)
-            ->where('purpose', PhoneOtp::PASSWORD_RESET)
+        return EmailOtp::where('user_id', $user->id)
+            ->where('email', $user->email)
+            ->where('purpose', EmailOtp::PASSWORD_RESET)
             ->latest('id')->lockForUpdate()->first();
     }
 

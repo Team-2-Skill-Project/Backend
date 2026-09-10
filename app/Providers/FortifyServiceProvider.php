@@ -4,7 +4,8 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
-use App\Services\PhoneNumber;
+use App\Actions\Fortify\SendRegistrationEmailVerification;
+use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -12,7 +13,6 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
-use InvalidArgumentException;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 
@@ -23,7 +23,7 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(SendEmailVerificationNotification::class, SendRegistrationEmailVerification::class);
     }
 
     /**
@@ -67,7 +67,7 @@ class FortifyServiceProvider extends ServiceProvider
         ]));
 
         Fortify::verifyEmailView(fn (Request $request) => Inertia::render('auth/verify-email', [
-            'status' => $request->session()->get('status'),
+            'email' => $request->user()->email,
         ]));
 
         Fortify::registerView(fn () => Inertia::render('auth/register', [
@@ -84,14 +84,19 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function configureRateLimiting(): void
     {
+        RateLimiter::for('email-verification-otp', fn (Request $request) => [
+            Limit::perMinute(10)->by('ip:'.$request->ip()),
+            Limit::perHour(3)->by('email:'.$this->emailKey($request)),
+        ]);
+
         RateLimiter::for('password-reset-otp', fn (Request $request) => [
             Limit::perMinute(10)->by('ip:'.$request->ip()),
-            Limit::perHour(3)->by('phone:'.$this->passwordResetPhoneKey($request)),
+            Limit::perHour(3)->by('email:'.$this->emailKey($request)),
         ]);
 
         RateLimiter::for('password-reset-verification', fn (Request $request) => [
             Limit::perMinute(20)->by('ip:'.$request->ip()),
-            Limit::perMinute(10)->by('phone:'.$this->passwordResetPhoneKey($request)),
+            Limit::perMinute(10)->by('email:'.$this->emailKey($request)),
         ]);
 
         RateLimiter::for('two-factor', function (Request $request) {
@@ -111,17 +116,10 @@ class FortifyServiceProvider extends ServiceProvider
         });
     }
 
-    private function passwordResetPhoneKey(Request $request): string
+    private function emailKey(Request $request): string
     {
-        $phone = $request->input('phone');
+        $email = $request->input('email');
 
-        if (is_string($phone) && strlen($phone) <= 64) {
-            try {
-                return hash('sha256', PhoneNumber::normalize($phone));
-            } catch (InvalidArgumentException) {
-            }
-        }
-
-        return hash('sha256', (string) $request->ip());
+        return hash('sha256', is_string($email) ? Str::lower(trim($email)) : (string) $request->ip());
     }
 }
