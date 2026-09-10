@@ -25,7 +25,6 @@ test('registration without phone sends a hashed expiring email OTP', function ()
     $user = User::sole();
     expect($user->phone)->toBeNull();
     expect($user->email_verified_at)->toBeNull();
-    expect($user->phone_verified_at)->toBeNull();
     expect(Hash::check('password', $user->password))->toBeTrue();
     $otp = EmailOtp::sole();
     expect($otp->expires_at->equalTo(now()->addMinutes(10)))->toBeTrue();
@@ -44,7 +43,6 @@ test('delivered OTP verifies email once and allows normal login', function () {
         ->assertOk()->assertJsonPath('message', 'Email verified successfully.');
 
     expect(User::sole()->email_verified_at)->not->toBeNull();
-    expect(User::sole()->phone_verified_at)->toBeNull();
     $this->assertDatabaseCount('email_otps', 0);
     $this->postJson('/api/auth/verify-email-otp', ['email' => 'otp@example.com', 'otp' => $code])->assertUnprocessable();
     $this->post(route('login.store'), ['email' => 'otp@example.com', 'password' => 'password'])

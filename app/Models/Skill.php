@@ -25,6 +25,12 @@ class Skill extends Model
         return $this->hasMany(CandidateSkill::class);
     }
 
+    /** @return HasMany<JobSkill, $this> */
+    public function jobSkills(): HasMany
+    {
+        return $this->hasMany(JobSkill::class);
+    }
+
     /** @return BelongsToMany<CandidateProfile, $this> */
     public function candidateProfiles(): BelongsToMany
     {
