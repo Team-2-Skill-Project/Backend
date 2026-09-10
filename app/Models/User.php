@@ -54,6 +54,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, Passk
         return $this->getKey();
     }
 
+    /** @return array<string, mixed> */
     public function getJWTCustomClaims(): array
     {
         return [];

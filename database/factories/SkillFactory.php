@@ -12,7 +12,7 @@ class SkillFactory extends Factory
     /** @return array<string, mixed> */
     public function definition(): array
     {
-        $name = fake()->unique()->words(3, true);
+        $name = rtrim(fake()->unique()->sentence(3, false), '.');
 
         return [
             'name' => $name,

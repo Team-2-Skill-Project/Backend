@@ -24,6 +24,9 @@ class EmailOtp extends Model
 
     protected $hidden = ['code_hash', 'reset_token_hash'];
 
+    /**
+     * @return array{expires_at: 'datetime', last_sent_at: 'datetime', reset_token_expires_at: 'datetime'}
+     */
     protected function casts(): array
     {
         return [
