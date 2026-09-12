@@ -69,6 +69,7 @@ test('GET returns only the JWT owners career preferences and public fields', fun
             'id' => $preference->id, 'target_role' => 'Developer', 'job_type' => null,
             'work_mode' => null, 'preferred_country' => null, 'preferred_city' => null,
             'experience_level' => null, 'career_goal' => null, 'open_to_relocation' => false,
+            'target_roles' => null, 'preferred_industries' => null,
         ]]);
 });
 
@@ -112,6 +113,7 @@ test('PATCH updates existing career preferences and preserves omitted fields', f
             'id' => $preference->id, 'target_role' => 'Architect', 'job_type' => 'Full time',
             'work_mode' => 'Remote', 'preferred_country' => 'Egypt', 'preferred_city' => 'Cairo',
             'experience_level' => 'Senior', 'career_goal' => 'Lead a team', 'open_to_relocation' => false,
+            'target_roles' => null, 'preferred_industries' => null,
         ]]);
 
     $this->assertDatabaseHas('career_preferences', [
@@ -119,6 +121,7 @@ test('PATCH updates existing career preferences and preserves omitted fields', f
         'target_role' => 'Architect', 'job_type' => 'Full time', 'work_mode' => 'Remote',
         'preferred_country' => 'Egypt', 'preferred_city' => 'Cairo',
         'experience_level' => 'Senior', 'career_goal' => 'Lead a team', 'open_to_relocation' => false,
+        'target_roles' => null, 'preferred_industries' => null,
     ]);
     $this->assertDatabaseCount('career_preferences', 1);
 });

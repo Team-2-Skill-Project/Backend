@@ -16,7 +16,7 @@ class ExperienceResource extends JsonResource
         return [
             ...$this->only([
                 'id', 'job_title', 'company_name', 'employment_type', 'country', 'city',
-                'is_current', 'description', 'source',
+                'is_current', 'description', 'source', 'technologies',
             ]),
             'start_date' => $this->start_date ? Carbon::parse($this->start_date)->toDateString() : null,
             'end_date' => $this->end_date ? Carbon::parse($this->end_date)->toDateString() : null,

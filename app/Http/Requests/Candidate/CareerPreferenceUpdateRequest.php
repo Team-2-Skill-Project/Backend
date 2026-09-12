@@ -16,6 +16,10 @@ class CareerPreferenceUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'target_roles' => ['sometimes', 'nullable', 'array', 'list'],
+            'target_roles.*' => ['required', 'string', 'max:255'],
+            'preferred_industries' => ['sometimes', 'nullable', 'array', 'list'],
+            'preferred_industries.*' => ['required', 'string', 'max:255'],
             'target_role' => ['sometimes', 'nullable', 'string', 'max:255'],
             'job_type' => ['sometimes', 'nullable', 'string', 'max:100'],
             'work_mode' => ['sometimes', 'nullable', 'string', 'max:100'],

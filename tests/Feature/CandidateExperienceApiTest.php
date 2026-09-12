@@ -109,7 +109,7 @@ test('a candidate can retrieve their own experience with only public fields', fu
         ->assertOk()->assertExactJson(['data' => [
             'id' => $experience->id, 'employment_type' => null, 'company_name' => 'Cairo Company',
             'country' => null, 'job_title' => 'Developer', 'start_date' => '2020-09-01',
-            'end_date' => null, 'is_current' => false, 'city' => null, 'description' => null, 'source' => 'manual',
+            'end_date' => null, 'is_current' => false, 'city' => null, 'description' => null, 'source' => 'manual', 'technologies' => null,
         ]]);
 });
 

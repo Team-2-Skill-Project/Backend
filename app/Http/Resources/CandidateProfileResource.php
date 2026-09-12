@@ -28,7 +28,7 @@ class CandidateProfileResource extends JsonResource
             ]),
             'careerPreference' => $this->careerPreference?->only([
                 'id', 'target_role', 'job_type', 'work_mode', 'preferred_country',
-                'preferred_city', 'experience_level', 'career_goal', 'open_to_relocation',
+                'preferred_city', 'experience_level', 'career_goal', 'open_to_relocation', 'target_roles', 'preferred_industries',
             ]),
             'educations' => $this->educations->map(fn (Education $education): array => $education->only([
                 'id', 'education_level', 'institution', 'field_of_study', 'degree',
@@ -36,7 +36,7 @@ class CandidateProfileResource extends JsonResource
             ])),
             'experiences' => $this->experiences->map(fn (Experience $experience): array => $experience->only([
                 'id', 'job_title', 'company_name', 'employment_type', 'country', 'city',
-                'start_date', 'end_date', 'is_current', 'description', 'source',
+                'start_date', 'end_date', 'is_current', 'description', 'source', 'technologies',
             ])),
             'projects' => $this->projects->map(fn (Project $project): array => $project->only([
                 'id', 'name', 'description', 'technologies', 'project_url', 'github_url',

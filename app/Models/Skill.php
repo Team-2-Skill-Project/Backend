@@ -38,4 +38,10 @@ class Skill extends Model
             ->withPivot(['id', 'source', 'proficiency_level'])
             ->withTimestamps();
     }
+
+    /** @return HasMany<RoadmapStep, $this> */
+    public function roadmapSteps(): HasMany
+    {
+        return $this->hasMany(RoadmapStep::class, 'target_skill_id');
+    }
 }

@@ -17,6 +17,7 @@ class JobSkill extends Model
         'skill_id',
         'is_required',
         'importance',
+        'required_level',
     ];
 
     protected function casts(): array

@@ -14,7 +14,7 @@ class CareerPreferenceResource extends JsonResource
     {
         return $this->only([
             'id', 'target_role', 'job_type', 'work_mode', 'preferred_country',
-            'preferred_city', 'experience_level', 'career_goal', 'open_to_relocation',
+            'preferred_city', 'experience_level', 'career_goal', 'open_to_relocation', 'target_roles', 'preferred_industries',
         ]);
     }
 }

@@ -16,6 +16,8 @@ class ExperienceSaveRequest extends ExperienceRequest
             : ['sometimes', 'required', 'string', 'max:255'];
 
         return [
+            'technologies' => ['sometimes', 'nullable', 'array', 'list'],
+            'technologies.*' => ['required', 'string', 'max:255'],
             'job_title' => $requiredString,
             'company_name' => $requiredString,
             'employment_type' => ['sometimes', 'nullable', 'string', 'max:255'],
