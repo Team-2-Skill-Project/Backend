@@ -6,12 +6,13 @@ use App\Models\CvDocument;
 use App\Models\CvExtraction;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/** @extends Factory<CvExtraction> */
+/**
+ * @extends Factory<CvExtraction>
+ */
 class CvExtractionFactory extends Factory
 {
     protected $model = CvExtraction::class;
 
-    /** @return array<string, mixed> */
     public function definition(): array
     {
         return [

@@ -2,39 +2,39 @@
 
 namespace App\Models;
 
-use Database\Factories\CandidateSkillFactory;
+use Database\Factories\JobMatchFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class CandidateSkill extends Model
+class JobMatch extends Model
 {
-    /** @use HasFactory<CandidateSkillFactory> */
+    /** @use HasFactory<JobMatchFactory> */
     use HasFactory;
-
-    public const SOURCE_MANUAL = 'manual';
-
-    public const SOURCE_CV_EXTRACTED = 'cv_extracted';
-
-    public const SOURCE_NORMALIZED = 'normalized';
-
-    public const SOURCE_AI_SUGGESTED = 'ai_suggested';
 
     protected $fillable = [
         'candidate_profile_id',
-        'skill_id',
-        'source',
-        'proficiency_level',
+        'job_post_id',
+        'score',
+        'matched_skills',
+        'missing_skills',
+        'weak_skills',
+        'reasons',
         'confidence',
-        'evidence',
+        'calculated_at',
     ];
 
     /** @return array<string, string> */
     protected function casts(): array
     {
         return [
+            'score' => 'decimal:2',
             'confidence' => 'decimal:2',
-            'evidence' => 'array',
+            'matched_skills' => 'array',
+            'missing_skills' => 'array',
+            'weak_skills' => 'array',
+            'reasons' => 'array',
+            'calculated_at' => 'datetime',
         ];
     }
 
@@ -44,9 +44,9 @@ class CandidateSkill extends Model
         return $this->belongsTo(CandidateProfile::class);
     }
 
-    /** @return BelongsTo<Skill, $this> */
-    public function skill(): BelongsTo
+    /** @return BelongsTo<JobPost, $this> */
+    public function jobPost(): BelongsTo
     {
-        return $this->belongsTo(Skill::class);
+        return $this->belongsTo(JobPost::class);
     }
 }

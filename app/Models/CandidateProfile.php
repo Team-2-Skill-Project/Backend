@@ -100,4 +100,16 @@ class CandidateProfile extends Model
             ->withPivot(['id', 'source', 'proficiency_level'])
             ->withTimestamps();
     }
+
+    /** @return HasMany<JobMatch, $this> */
+    public function jobMatches(): HasMany
+    {
+        return $this->hasMany(JobMatch::class);
+    }
+
+    /** @return HasMany<Roadmap, $this> */
+    public function roadmaps(): HasMany
+    {
+        return $this->hasMany(Roadmap::class);
+    }
 }
