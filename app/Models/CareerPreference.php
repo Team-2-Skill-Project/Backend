@@ -22,12 +22,16 @@ class CareerPreference extends Model
         'experience_level',
         'career_goal',
         'open_to_relocation',
+        'target_roles',
+        'preferred_industries',
     ];
 
     /** @return array<string, string> */
     protected function casts(): array
     {
         return [
+            'target_roles' => 'array',
+            'preferred_industries' => 'array',
             'open_to_relocation' => 'boolean',
         ];
     }

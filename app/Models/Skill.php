@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\SkillFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -17,6 +18,7 @@ class Skill extends Model
         'name',
         'normalized_name',
         'category',
+        'skill_category_id',
     ];
 
     /** @return HasMany<CandidateSkill, $this> */
@@ -37,5 +39,23 @@ class Skill extends Model
         return $this->belongsToMany(CandidateProfile::class, 'candidate_skills')
             ->withPivot(['id', 'source', 'proficiency_level'])
             ->withTimestamps();
+    }
+
+    /** @return HasMany<RoadmapStep, $this> */
+    public function roadmapSteps(): HasMany
+    {
+        return $this->hasMany(RoadmapStep::class, 'target_skill_id');
+    }
+
+    /** @return BelongsTo<SkillCategory, $this> */
+    public function skillCategory(): BelongsTo
+    {
+        return $this->belongsTo(SkillCategory::class);
+    }
+
+    /** @return HasMany<SkillAlias, $this> */
+    public function aliases(): HasMany
+    {
+        return $this->hasMany(SkillAlias::class);
     }
 }

@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property string|null $confidence
+ * @property array<array-key, mixed>|null $evidence
+ */
 class CandidateSkill extends Model
 {
     /** @use HasFactory<CandidateSkillFactory> */
@@ -25,7 +29,18 @@ class CandidateSkill extends Model
         'skill_id',
         'source',
         'proficiency_level',
+        'confidence',
+        'evidence',
     ];
+
+    /** @return array<string, string> */
+    protected function casts(): array
+    {
+        return [
+            'confidence' => 'decimal:2',
+            'evidence' => 'array',
+        ];
+    }
 
     /** @return BelongsTo<CandidateProfile, $this> */
     public function candidateProfile(): BelongsTo
