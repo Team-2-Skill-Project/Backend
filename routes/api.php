@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\SkillAliasController;
 use App\Http\Controllers\Admin\SkillController;
 use App\Http\Controllers\Admin\SkillMergeController;
@@ -70,6 +71,11 @@ Route::middleware(['auth:api', EnsureActiveCandidate::class])->group(function ()
 Route::get('/skills/search', SkillSearchController::class)->middleware('auth:api');
 
 Route::middleware(['auth:api', EnsureActiveAdmin::class])->group(function (): void {
+    Route::post('/admin/companies', [CompanyController::class, 'store']);
+    Route::patch('/admin/companies/{company}', [CompanyController::class, 'update']);
+    Route::post('/admin/companies/{sourceCompany}/merge', [CompanyController::class, 'merge']);
+    Route::get('/admin/companies', [CompanyController::class, 'index']);
+    Route::get('/admin/companies/{company}', [CompanyController::class, 'show']);
     Route::post('/admin/skills', [SkillController::class, 'store']);
     Route::patch('/admin/skills/{skill}', [SkillController::class, 'update']);
     Route::get('/admin/skills/{skill}/aliases', [SkillAliasController::class, 'index']);
