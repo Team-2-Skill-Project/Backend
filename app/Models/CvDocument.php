@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CvParsingStatus;
 use Database\Factories\CvDocumentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -38,6 +39,7 @@ class CvDocument extends Model
             'version' => 'integer',
             'is_current' => 'boolean',
             'processed_at' => 'datetime',
+            'status' => CvParsingStatus::class,
         ];
     }
 
