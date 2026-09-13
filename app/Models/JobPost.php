@@ -147,4 +147,10 @@ class JobPost extends Model
     {
         return $this->hasMany(Roadmap::class, 'target_job_post_id');
     }
+
+    /** @return HasMany<SavedJob, $this> */
+    public function savedJobs(): HasMany
+    {
+        return $this->hasMany(SavedJob::class);
+    }
 }
