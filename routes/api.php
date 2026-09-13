@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\SkillAliasController;
+use App\Http\Controllers\Admin\SkillController;
+use App\Http\Controllers\Admin\SkillMergeController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\EmailPasswordResetController;
 use App\Http\Controllers\Candidate\CandidateSkillController;
@@ -8,6 +11,8 @@ use App\Http\Controllers\Candidate\EducationController;
 use App\Http\Controllers\Candidate\ExperienceController;
 use App\Http\Controllers\Candidate\ProfileController;
 use App\Http\Controllers\Candidate\ProjectController;
+use App\Http\Controllers\SkillSearchController;
+use App\Http\Middleware\EnsureActiveAdmin;
 use App\Http\Middleware\EnsureActiveCandidate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -61,3 +66,16 @@ Route::middleware(['auth:api', EnsureActiveCandidate::class])->group(function ()
     Route::post('/candidate/skills', [CandidateSkillController::class, 'store']);
     Route::delete('/candidate/skills/{candidateSkill}', [CandidateSkillController::class, 'destroy']);
 });
+
+Route::get('/skills/search', SkillSearchController::class)->middleware('auth:api');
+
+Route::middleware(['auth:api', EnsureActiveAdmin::class])->group(function (): void {
+    Route::post('/admin/skills', [SkillController::class, 'store']);
+    Route::patch('/admin/skills/{skill}', [SkillController::class, 'update']);
+    Route::get('/admin/skills/{skill}/aliases', [SkillAliasController::class, 'index']);
+    Route::post('/admin/skills/{skill}/aliases', [SkillAliasController::class, 'store']);
+    Route::patch('/admin/skills/{skill}/aliases/{alias}', [SkillAliasController::class, 'update']);
+    Route::delete('/admin/skills/{skill}/aliases/{alias}', [SkillAliasController::class, 'destroy']);
+});
+
+Route::post('/admin/skills/{sourceSkill}/merge', SkillMergeController::class)->middleware(['auth:api', EnsureActiveAdmin::class]);

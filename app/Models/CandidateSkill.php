@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property string|null $confidence
+ * @property array<array-key, mixed>|null $evidence
+ */
 class CandidateSkill extends Model
 {
     /** @use HasFactory<CandidateSkillFactory> */
