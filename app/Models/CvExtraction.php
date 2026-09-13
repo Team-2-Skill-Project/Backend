@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CvExtractionStatus;
 use Database\Factories\CvExtractionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -30,11 +31,12 @@ class CvExtraction extends Model
     protected function casts(): array
     {
         return [
-            'attempt_number' => 'integer',
-            'extracted_data' => 'array',
-            'confidence_score' => 'decimal:4',
-            'started_at' => 'datetime',
-            'completed_at' => 'datetime',
+            'attempt_number'    => 'integer',
+            'extracted_data'    => 'array',
+            'confidence_score'  => 'decimal:4',
+            'started_at'        => 'datetime',
+            'completed_at'      => 'datetime',
+            'status'            => CvExtractionStatus::class,
         ];
     }
 

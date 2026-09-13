@@ -98,3 +98,5 @@ Route::middleware(['auth:api', EnsureActiveAdmin::class])->group(function (): vo
 });
 
 Route::post('/admin/skills/{sourceSkill}/merge', SkillMergeController::class)->middleware(['auth:api', EnsureActiveAdmin::class]);
+
+require __DIR__.'/cv.php';
