@@ -34,11 +34,18 @@ class JobPost extends Model
         'status',
         'published_at',
         'expires_at',
+        'min_years_experience',
+        'max_years_experience',
+        'responsibilities',
+        'canonical_role',
     ];
 
     protected function casts(): array
     {
         return [
+            'min_years_experience' => 'integer',
+            'max_years_experience' => 'integer',
+            'responsibilities' => 'array',
             'salary_min' => 'decimal:2',
             'salary_max' => 'decimal:2',
             'published_at' => 'datetime',
@@ -62,5 +69,17 @@ class JobPost extends Model
     public function jobSkills(): HasMany
     {
         return $this->hasMany(JobSkill::class);
+    }
+
+    /** @return HasMany<JobMatch, $this> */
+    public function jobMatches(): HasMany
+    {
+        return $this->hasMany(JobMatch::class);
+    }
+
+    /** @return HasMany<Roadmap, $this> */
+    public function roadmaps(): HasMany
+    {
+        return $this->hasMany(Roadmap::class, 'target_job_post_id');
     }
 }
