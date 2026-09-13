@@ -28,9 +28,6 @@ class CvExtraction extends Model
         'completed_at',
     ];
 
-    /**
-     * @return array{attempt_number: 'integer', extracted_data: 'array', confidence_score: 'decimal:4', started_at: 'datetime', completed_at: 'datetime'}
-     */
     protected function casts(): array
     {
         return [
@@ -43,7 +40,9 @@ class CvExtraction extends Model
         ];
     }
 
-    /** @return BelongsTo<CvDocument, $this> */
+    /**
+     * @return BelongsTo<CvDocument, $this>
+     */
     public function cvDocument(): BelongsTo
     {
         return $this->belongsTo(CvDocument::class);

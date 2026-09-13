@@ -28,12 +28,14 @@ class Experience extends Model
         'is_current',
         'description',
         'source',
+        'technologies',
     ];
 
     /** @return array<string, string> */
     protected function casts(): array
     {
         return [
+            'technologies' => 'array',
             'start_date' => 'date',
             'end_date' => 'date',
             'is_current' => 'boolean',

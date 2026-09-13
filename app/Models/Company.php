@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Company extends Model
 {
@@ -28,6 +29,15 @@ class Company extends Model
         'is_active',
         'created_by',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Company $company): void {
+            if ($company->getAttribute('normalized_name') === null) {
+                $company->normalized_name = Str::lower(Str::trim($company->name));
+            }
+        });
+    }
 
     protected function casts(): array
     {
