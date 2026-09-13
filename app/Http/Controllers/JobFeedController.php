@@ -23,11 +23,9 @@ class JobFeedController extends Controller
                 'company:id,name,logo_url,is_verified',
                 'requiredSkills:id,name',
                 'preferredSkills:id,name',
-            ])
-            ->orderByRaw('published_at IS NULL ASC')
-            ->orderByDesc('published_at')
-            ->orderByDesc('id');
+            ]);
 
+        $search = null;
         if (! empty($filters['search'])) {
             $search = Str::lower(Str::trim($filters['search']));
             $query->where(function ($query) use ($search): void {
@@ -37,6 +35,14 @@ class JobFeedController extends Controller
                     ->orWhereRaw('LOWER(job_posts.description) LIKE ?', [$like])
                     ->orWhereHas('company', function ($query) use ($like): void {
                         $query->whereRaw('LOWER(companies.name) LIKE ?', [$like])
+                            ->orWhereHas('aliases', fn ($query) => $query->whereRaw('LOWER(normalized_alias) LIKE ?', [$like]));
+                    })
+                    ->orWhereHas('requiredSkills', function ($query) use ($like): void {
+                        $query->whereRaw('LOWER(skills.name) LIKE ?', [$like])
+                            ->orWhereHas('aliases', fn ($query) => $query->whereRaw('LOWER(normalized_alias) LIKE ?', [$like]));
+                    })
+                    ->orWhereHas('preferredSkills', function ($query) use ($like): void {
+                        $query->whereRaw('LOWER(skills.name) LIKE ?', [$like])
                             ->orWhereHas('aliases', fn ($query) => $query->whereRaw('LOWER(normalized_alias) LIKE ?', [$like]));
                     });
             });
@@ -57,6 +63,54 @@ class JobFeedController extends Controller
         }
         foreach ($filters['preferred_skill_ids'] ?? [] as $skillId) {
             $query->whereHas('preferredSkills', fn ($query) => $query->whereKey($skillId));
+        }
+
+        if (($filters['sort'] ?? 'newest') === 'relevance' && $search !== null) {
+            $like = "%{$search}%";
+            $prefix = "{$search}%";
+            $query->select('job_posts.*')->selectRaw(
+                'CASE
+                    WHEN LOWER(job_posts.title) = ? THEN 1
+                    WHEN LOWER(job_posts.title) LIKE ? THEN 2
+                    WHEN LOWER(job_posts.title) LIKE ? THEN 3
+                    WHEN LOWER(job_posts.canonical_role) = ? THEN 4
+                    WHEN LOWER(job_posts.canonical_role) LIKE ? THEN 5
+                    WHEN LOWER(job_posts.canonical_role) LIKE ? THEN 6
+                    WHEN EXISTS (
+                        SELECT 1 FROM companies
+                        WHERE companies.id = job_posts.company_id
+                        AND LOWER(companies.name) = ?
+                    ) THEN 7
+                    WHEN EXISTS (
+                        SELECT 1 FROM company_aliases
+                        WHERE company_aliases.company_id = job_posts.company_id
+                        AND LOWER(company_aliases.normalized_alias) LIKE ?
+                    ) THEN 8
+                    WHEN EXISTS (
+                        SELECT 1 FROM companies
+                        WHERE companies.id = job_posts.company_id
+                        AND LOWER(companies.name) LIKE ?
+                    ) THEN 9
+                    WHEN EXISTS (
+                        SELECT 1 FROM job_skills
+                        INNER JOIN skills ON skills.id = job_skills.skill_id
+                        LEFT JOIN skill_aliases ON skill_aliases.skill_id = skills.id
+                        WHERE job_skills.job_post_id = job_posts.id
+                        AND (LOWER(skills.name) LIKE ? OR LOWER(skill_aliases.normalized_alias) LIKE ?)
+                    ) THEN 10
+                    WHEN LOWER(job_posts.description) LIKE ? THEN 11
+                    ELSE 12
+                END AS relevance_rank',
+                [$search, $prefix, $like, $search, $prefix, $like, $search, $like, $like, $like, $like, $like]
+            )
+                ->orderBy('relevance_rank')
+                ->orderByRaw('published_at IS NULL ASC')
+                ->orderByDesc('published_at')
+                ->orderByDesc('id');
+        } else {
+            $query->orderByRaw('published_at IS NULL ASC')
+                ->orderByDesc('published_at')
+                ->orderByDesc('id');
         }
 
         return JobFeedResource::collection($query->paginate($filters['per_page'] ?? 15)->withQueryString());

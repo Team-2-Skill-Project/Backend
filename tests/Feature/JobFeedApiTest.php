@@ -5,6 +5,7 @@ use App\Models\CompanyAlias;
 use App\Models\JobPost;
 use App\Models\JobSkill;
 use App\Models\Skill;
+use App\Models\SkillAlias;
 use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -97,6 +98,71 @@ it('searches title canonical role company name and aliases without duplicate job
     'company' => ['holdings', 'Backend Engineer'],
     'alias' => ['group', 'Backend Engineer'],
 ]);
+
+it('searches required and preferred skill names and skill aliases without duplicates', function (bool $required) {
+    $user = User::factory()->create(['role' => 'candidate']);
+    $skill = Skill::factory()->create(['name' => 'Laravel']);
+    SkillAlias::factory()->for($skill)->create(['alias' => 'PHP Framework', 'normalized_alias' => 'php framework']);
+    $job = JobPost::factory()->create();
+    JobSkill::factory()->for($job)->for($skill)->create(['is_required' => $required]);
+    JobPost::factory()->create();
+
+    foreach (['Laravel', 'PHP Framework'] as $search) {
+        $this->withToken(JWTAuth::fromUser($user))->getJson('/api/jobs?search='.urlencode($search))
+            ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $job->id);
+    }
+})->with([true, false]);
+
+it('ranks relevance matches before weaker matches and uses deterministic tie breaks', function () {
+    $user = User::factory()->create(['role' => 'candidate']);
+    $company = Company::factory()->create(['name' => 'Laravel Company']);
+    $exact = JobPost::factory()->create(['title' => 'Laravel', 'description' => 'Unrelated text.']);
+    $prefix = JobPost::factory()->create(['title' => 'Laravel Engineer', 'description' => 'Unrelated text.']);
+    $companyMatch = JobPost::factory()->for($company)->create(['title' => 'Engineer', 'description' => 'Unrelated text.']);
+    $descriptionMatch = JobPost::factory()->create(['title' => 'Engineer', 'description' => 'Uses Laravel daily.']);
+
+    $response = $this->withToken(JWTAuth::fromUser($user))->getJson('/api/jobs?search=laravel&sort=relevance&per_page=100')->assertOk();
+
+    expect(array_column($response->json('data'), 'id'))->toBe([$exact->id, $prefix->id, $companyMatch->id, $descriptionMatch->id]);
+});
+
+it('falls back to newest when relevance is requested without search and validates sort', function () {
+    $user = User::factory()->create(['role' => 'candidate']);
+    $new = JobPost::factory()->create(['published_at' => now()]);
+    JobPost::factory()->create(['published_at' => now()->subDay()]);
+    $token = JWTAuth::fromUser($user);
+
+    $this->withToken($token)->getJson('/api/jobs?sort=relevance')
+        ->assertOk()->assertJsonPath('data.0.id', $new->id);
+    $this->withToken($token)->getJson('/api/jobs?sort=popular')
+        ->assertUnprocessable()->assertJsonValidationErrors(['sort']);
+});
+
+it('returns an empty paginated result when no jobs match', function () {
+    $user = User::factory()->create(['role' => 'candidate']);
+
+    $this->withToken(JWTAuth::fromUser($user))->getJson('/api/jobs?search=does-not-exist')
+        ->assertOk()->assertJsonCount(0, 'data')->assertJsonPath('meta.total', 0)
+        ->assertJsonPath('meta.current_page', 1)->assertJsonPath('meta.last_page', 1);
+});
+
+it('combines search, location, work mode, experience, skill filters, sorting, and pagination', function () {
+    $user = User::factory()->create(['role' => 'candidate']);
+    $required = Skill::factory()->create(['name' => 'Laravel']);
+    $preferred = Skill::factory()->create(['name' => 'Docker']);
+    $matching = JobPost::factory()->create([
+        'title' => 'Laravel Engineer', 'country' => 'Egypt', 'work_mode' => 'remote',
+        'experience_level' => 'junior', 'job_type' => 'job', 'published_at' => now(),
+    ]);
+    JobSkill::factory()->for($matching)->for($required)->create(['is_required' => true]);
+    JobSkill::factory()->for($matching)->for($preferred)->create(['is_required' => false]);
+    JobPost::factory()->create(['title' => 'Laravel Engineer', 'country' => 'Jordan', 'work_mode' => 'remote']);
+
+    $this->withToken(JWTAuth::fromUser($user))->getJson(
+        '/api/jobs?search=laravel&country=Egypt&work_mode=remote&experience_level=junior&job_type=job&required_skill_ids[]='.$required->id.'&preferred_skill_ids[]='.$preferred->id.'&sort=relevance&per_page=20'
+    )->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $matching->id)
+        ->assertJsonPath('meta.per_page', 20);
+});
 
 it('applies scalar filters', function (string $filter, string $value) {
     $user = User::factory()->create(['role' => 'candidate']);

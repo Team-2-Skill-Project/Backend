@@ -37,6 +37,7 @@ class JobListRequest extends FormRequest
     {
         return [
             'search' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'sort' => ['sometimes', 'in:newest,relevance'],
             'company_id' => ['sometimes', 'integer', Rule::exists(Company::class, 'id')],
             'job_type' => ['sometimes', 'in:'.JobPost::TYPE_JOB.','.JobPost::TYPE_INTERNSHIP],
             'work_mode' => ['sometimes', 'string', 'max:255'],
