@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\JobPost;
 use App\Models\SavedJob;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +20,8 @@ class SavedJobFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'user_id' => User::factory(),
+            'job_post_id' => JobPost::factory(),
         ];
     }
 }

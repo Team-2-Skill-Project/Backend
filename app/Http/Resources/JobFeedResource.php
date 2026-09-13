@@ -22,10 +22,11 @@ class JobFeedResource extends JsonResource
                 'country', 'state', 'city', 'min_years_experience', 'max_years_experience',
                 'source', 'application_method', 'published_at', 'expires_at', 'is_active',
             ]),
-            'company' => $this->whenLoaded('company', fn () => $this->company->only(['id', 'name', 'logo_url', 'is_verified'])),
+            'company' => $this->whenLoaded('company', fn () => $this->company->only(['id', 'name', 'logo_url', 'is_verified', 'is_active'])),
             'required_skills' => JobSkillResource::collection($this->whenLoaded('requiredSkills')),
             'preferred_skills' => JobSkillResource::collection($this->whenLoaded('preferredSkills')),
             'is_expired' => $this->isExpired(),
+            'is_saved' => (bool) ($this->resource->getAttribute('is_saved') ?? false),
         ];
     }
 }

@@ -13,6 +13,7 @@ class JobFeedController extends Controller
     public function __invoke(JobListRequest $request): AnonymousResourceCollection
     {
         $filters = $request->validated();
+        $userId = (int) $request->user('api')->getKey();
         $query = JobPost::query()
             ->active()
             ->notExpired()
@@ -23,7 +24,8 @@ class JobFeedController extends Controller
                 'company:id,name,logo_url,is_verified',
                 'requiredSkills:id,name',
                 'preferredSkills:id,name',
-            ]);
+            ])
+            ->withExists(['savedJobs as is_saved' => fn ($query) => $query->where('user_id', $userId)]);
 
         $search = null;
         if (! empty($filters['search'])) {

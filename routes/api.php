@@ -14,6 +14,7 @@ use App\Http\Controllers\Candidate\ExperienceController;
 use App\Http\Controllers\Candidate\ProfileController;
 use App\Http\Controllers\Candidate\ProjectController;
 use App\Http\Controllers\JobFeedController;
+use App\Http\Controllers\SavedJobController;
 use App\Http\Controllers\SkillSearchController;
 use App\Http\Middleware\EnsureActiveAdmin;
 use App\Http\Middleware\EnsureActiveCandidate;
@@ -73,6 +74,11 @@ Route::middleware(['auth:api', EnsureActiveCandidate::class])->group(function ()
 
 Route::get('/skills/search', SkillSearchController::class)->middleware('auth:api');
 Route::get('/jobs', JobFeedController::class)->middleware(['auth:api', EnsureActiveUser::class]);
+Route::middleware(['auth:api', EnsureActiveCandidate::class])->group(function (): void {
+    Route::post('/jobs/{jobPost}/save', [SavedJobController::class, 'store']);
+    Route::delete('/jobs/{jobPost}/save', [SavedJobController::class, 'destroy']);
+    Route::get('/saved-jobs', [SavedJobController::class, 'index']);
+});
 
 Route::middleware(['auth:api', EnsureActiveAdmin::class])->group(function (): void {
     Route::post('/admin/companies', [CompanyController::class, 'store']);
