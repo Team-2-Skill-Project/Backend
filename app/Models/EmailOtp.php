@@ -4,14 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PhoneOtp extends Model
+class EmailOtp extends Model
 {
-    public const PHONE_VERIFICATION = 'phone_verification';
+    public const EMAIL_VERIFICATION = 'email_verification';
 
     public const PASSWORD_RESET = 'password_reset';
 
     protected $fillable = [
         'user_id',
+        'email',
         'purpose',
         'code_hash',
         'expires_at',
@@ -23,6 +24,9 @@ class PhoneOtp extends Model
 
     protected $hidden = ['code_hash', 'reset_token_hash'];
 
+    /**
+     * @return array{expires_at: 'datetime', last_sent_at: 'datetime', reset_token_expires_at: 'datetime'}
+     */
     protected function casts(): array
     {
         return [

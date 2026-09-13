@@ -5,7 +5,7 @@ import {
     resetPassword,
     store,
     verifyOtp,
-} from '@/actions/App/Http/Controllers/Auth/PhonePasswordResetController';
+} from '@/actions/App/Http/Controllers/Auth/EmailPasswordResetController';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
@@ -16,9 +16,9 @@ import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes';
 
 type Step =
-    | { name: 'phone' }
-    | { name: 'otp'; phone: string }
-    | { name: 'password'; phone: string; token: string }
+    | { name: 'email' }
+    | { name: 'otp'; email: string }
+    | { name: 'password'; email: string; token: string }
     | { name: 'success' };
 
 function errorMessage(error: unknown): string {
@@ -44,8 +44,8 @@ function errorMessage(error: unknown): string {
     return 'Unable to complete the request. Please try again.';
 }
 
-function RequestCode({ onSent }: { onSent: (phone: string) => void }) {
-    const form = useHttp({ phone: '' });
+function RequestCode({ onSent }: { onSent: (email: string) => void }) {
+    const form = useHttp({ email: '' });
     const [message, setMessage] = useState('');
 
     async function submit(event: FormEvent<HTMLFormElement>) {
@@ -54,7 +54,7 @@ function RequestCode({ onSent }: { onSent: (phone: string) => void }) {
         setMessage('');
         try {
             await form.post(store.url());
-            onSent(form.data.phone);
+            onSent(form.data.email);
         } catch (error) {
             setMessage(errorMessage(error));
         }
@@ -64,21 +64,21 @@ function RequestCode({ onSent }: { onSent: (phone: string) => void }) {
         <form onSubmit={submit} className="flex flex-col gap-6">
             <fieldset disabled={form.processing} className="grid gap-6">
                 <div className="grid gap-2">
-                    <Label htmlFor="phone">Phone number</Label>
+                    <Label htmlFor="email">Email address</Label>
                     <Input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        autoComplete="tel"
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
                         autoFocus
                         required
-                        placeholder="+20 10 1234 5678"
-                        value={form.data.phone}
+                        placeholder="email@example.com"
+                        value={form.data.email}
                         onChange={(event) =>
-                            form.setData('phone', event.target.value)
+                            form.setData('email', event.target.value)
                         }
                     />
-                    <InputError message={form.errors.phone} />
+                    <InputError message={form.errors.email} />
                 </div>
                 {message && <InputError message={message} role="alert" />}
                 <Button
@@ -95,19 +95,19 @@ function RequestCode({ onSent }: { onSent: (phone: string) => void }) {
 }
 
 function VerifyCode({
-    phone,
+    email,
     onVerified,
     onRestart,
 }: {
-    phone: string;
+    email: string;
     onVerified: (token: string) => void;
     onRestart: () => void;
 }) {
     const form = useHttp<
-        { phone: string; otp: string },
+        { email: string; otp: string },
         { reset_token: string }
-    >({ phone, otp: '' });
-    const resend = useHttp({ phone });
+    >({ email, otp: '' });
+    const resend = useHttp({ email });
     const [message, setMessage] = useState('');
     const [notice, setNotice] = useState('');
     const processing = form.processing || resend.processing;
@@ -145,7 +145,7 @@ function VerifyCode({
         try {
             await resend.post(store.url());
             form.resetAndClearErrors('otp');
-            setNotice('A new code has been sent. Use it within five minutes.');
+            setNotice('A new code has been sent. Use it within ten minutes.');
         } catch (error) {
             setMessage(errorMessage(error));
         }
@@ -180,8 +180,8 @@ function VerifyCode({
                         }}
                     />
                     <InputError message={form.errors.otp} />
-                    <InputError message={form.errors.phone} />
-                    <InputError message={resend.errors.phone} />
+                    <InputError message={form.errors.email} />
+                    <InputError message={resend.errors.email} />
                 </div>
                 {message && <InputError message={message} role="alert" />}
                 {notice && (
@@ -203,7 +203,7 @@ function VerifyCode({
                     Resend code
                 </Button>
                 <Button type="button" variant="ghost" onClick={onRestart}>
-                    Use a different phone number
+                    Use a different email address
                 </Button>
             </fieldset>
         </form>
@@ -211,20 +211,20 @@ function VerifyCode({
 }
 
 function NewPassword({
-    phone,
+    email,
     token,
     passwordRules,
     onRestart,
     onSuccess,
 }: {
-    phone: string;
+    email: string;
     token: string;
     passwordRules: string;
     onRestart: () => void;
     onSuccess: () => void;
 }) {
     const form = useHttp({
-        phone,
+        email,
         reset_token: token,
         password: '',
         password_confirmation: '',
@@ -246,7 +246,7 @@ function NewPassword({
         try {
             await form.post(resetPassword.url());
             form.setData({
-                phone: '',
+                email: '',
                 reset_token: '',
                 password: '',
                 password_confirmation: '',
@@ -299,7 +299,7 @@ function NewPassword({
                     <InputError message={form.errors.password_confirmation} />
                 </div>
                 <InputError message={form.errors.reset_token} />
-                <InputError message={form.errors.phone} />
+                <InputError message={form.errors.email} />
                 {message && <InputError message={message} role="alert" />}
                 <Button
                     type="submit"
@@ -341,12 +341,12 @@ export default function ForgotPassword({
 }: {
     passwordRules: string;
 }) {
-    const [step, setStep] = useState<Step>({ name: 'phone' });
-    const restart = () => setStep({ name: 'phone' });
+    const [step, setStep] = useState<Step>({ name: 'email' });
+    const restart = () => setStep({ name: 'email' });
 
     setLayoutProps({
         title:
-            step.name === 'phone'
+            step.name === 'email'
                 ? 'Forgot password'
                 : step.name === 'otp'
                   ? 'Verify code'
@@ -354,10 +354,10 @@ export default function ForgotPassword({
                     ? 'Create new password'
                     : 'Password reset',
         description:
-            step.name === 'phone'
-                ? 'Enter your phone number and we will send a verification code to your WhatsApp.'
+            step.name === 'email'
+                ? 'Enter your email address and we will send a verification code to your email.'
                 : step.name === 'otp'
-                  ? `Enter the six-digit code sent to ${step.phone}. It expires in five minutes.`
+                  ? `Enter the six-digit code sent to ${step.email}. It expires in ten minutes.`
                   : step.name === 'password'
                     ? 'Choose a new password. Your reset session expires in ten minutes.'
                     : 'You can now log in with your new password.',
@@ -367,19 +367,19 @@ export default function ForgotPassword({
         <>
             <Head title="Forgot password" />
             <div className="space-y-6">
-                {step.name === 'phone' && (
+                {step.name === 'email' && (
                     <RequestCode
-                        onSent={(phone) => setStep({ name: 'otp', phone })}
+                        onSent={(email) => setStep({ name: 'otp', email })}
                     />
                 )}
                 {step.name === 'otp' && (
                     <VerifyCode
-                        phone={step.phone}
+                        email={step.email}
                         onRestart={restart}
                         onVerified={(token) =>
                             setStep({
                                 name: 'password',
-                                phone: step.phone,
+                                email: step.email,
                                 token,
                             })
                         }
@@ -387,7 +387,7 @@ export default function ForgotPassword({
                 )}
                 {step.name === 'password' && (
                     <NewPassword
-                        phone={step.phone}
+                        email={step.email}
                         token={step.token}
                         passwordRules={passwordRules}
                         onRestart={restart}
@@ -406,5 +406,5 @@ export default function ForgotPassword({
 ForgotPassword.layout = {
     title: 'Forgot password',
     description:
-        'Enter your phone number and we will send a verification code to your WhatsApp.',
+        'Enter your email address and we will send a verification code to your email.',
 };
