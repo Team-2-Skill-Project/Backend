@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Enums;
 
 enum CvParsingStatus: string
@@ -8,6 +9,7 @@ enum CvParsingStatus: string
     case PROCESSED = 'processed';
     case FAILED = 'failed';
 
+    /** @return array<int, string> */
     public static function values(): array
     {
         return array_column(self::cases(), 'value');

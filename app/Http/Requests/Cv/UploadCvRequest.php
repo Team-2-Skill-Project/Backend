@@ -1,5 +1,6 @@
 <?php
-namespace App\Http\Requests\cv;
+
+namespace App\Http\Requests\Cv;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -10,6 +11,7 @@ class UploadCvRequest extends FormRequest
         return true;
     }
 
+    /** @return array<string, array<int, string|\Closure>> */
     public function rules(): array
     {
         return [

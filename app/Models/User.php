@@ -60,6 +60,12 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, Passk
         return $this->belongsToMany(JobPost::class, 'saved_jobs')->withTimestamps();
     }
 
+    /** @return HasMany<Notification, $this> */
+    public function appNotifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
+
     public function sendEmailVerificationNotification(): void
     {
         app(EmailOtpService::class)->send($this, EmailOtp::EMAIL_VERIFICATION);
