@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\JobPostController;
+use App\Http\Controllers\Admin\JobSourceController;
 use App\Http\Controllers\Admin\SkillAliasController;
 use App\Http\Controllers\Admin\SkillController;
 use App\Http\Controllers\Admin\SkillMergeController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Candidate\ExperienceController;
 use App\Http\Controllers\Candidate\ProfileController;
 use App\Http\Controllers\Candidate\ProjectController;
 use App\Http\Controllers\JobFeedController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SavedJobController;
 use App\Http\Controllers\SkillSearchController;
 use App\Http\Middleware\EnsureActiveAdmin;
@@ -78,9 +80,17 @@ Route::middleware(['auth:api', EnsureActiveCandidate::class])->group(function ()
     Route::post('/jobs/{jobPost}/save', [SavedJobController::class, 'store']);
     Route::delete('/jobs/{jobPost}/save', [SavedJobController::class, 'destroy']);
     Route::get('/saved-jobs', [SavedJobController::class, 'index']);
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead']);
 });
 
 Route::middleware(['auth:api', EnsureActiveAdmin::class])->group(function (): void {
+    Route::post('/admin/job-sources', [JobSourceController::class, 'store']);
+    Route::get('/admin/job-sources', [JobSourceController::class, 'index']);
+    Route::get('/admin/job-sources/{jobSource}', [JobSourceController::class, 'show']);
+    Route::patch('/admin/job-sources/{jobSource}', [JobSourceController::class, 'update']);
     Route::post('/admin/companies', [CompanyController::class, 'store']);
     Route::patch('/admin/companies/{company}', [CompanyController::class, 'update']);
     Route::post('/admin/companies/{sourceCompany}/merge', [CompanyController::class, 'merge']);

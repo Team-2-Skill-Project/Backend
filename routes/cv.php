@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Cv\CvController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:api'])->prefix('cv')->group(function () {
     Route::post('/upload', [CvController::class, 'store']);
