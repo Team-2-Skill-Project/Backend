@@ -1,25 +1,28 @@
 <?php
-namespace App\Http\Controllers\cv;
+
+namespace App\Http\Controllers\Cv;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\cv\UploadCvRequest;
+use App\Http\Requests\Cv\UploadCvRequest;
+use App\Http\Requests\Cv\VerifyCvExtractionRequest;
 use App\Models\CvDocument;
 use App\Models\CvExtraction;
 use App\Services\CvService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class CvController extends Controller
 {
     use AuthorizesRequests;
+
     public function __construct(protected CvService $cvService) {}
 
     public function store(UploadCvRequest $request): JsonResponse
     {
         $profile = $request->user()->candidateProfile;
 
-        if (!$profile) {
+        if (! $profile) {
             return response()->json(['message' => 'Candidate profile not found.'], 404);
         }
 
@@ -27,10 +30,9 @@ class CvController extends Controller
 
         return response()->json([
             'message' => 'CV uploaded successfully and queued for processing.',
-            'data'    => $cvDocument,
+            'data' => $cvDocument,
         ], 201);
     }
-
 
     public function show(Request $request, CvDocument $cvDocument): JsonResponse
     {
@@ -42,7 +44,6 @@ class CvController extends Controller
             'data' => $cvDocument,
         ]);
     }
-
 
     public function history(Request $request): JsonResponse
     {
@@ -63,18 +64,18 @@ class CvController extends Controller
 
         return response()->json([
             'message' => 'CV processing retried successfully.',
-            'data'    => $updatedCv,
+            'data' => $updatedCv,
         ]);
     }
 
-    public function verify(Request $request, CvExtraction $extraction): JsonResponse
+    public function verify(VerifyCvExtractionRequest $request, CvExtraction $extraction): JsonResponse
     {
         $profile = $request->user()->candidateProfile;
 
         $this->cvService->verifyAndSyncExtractedData($profile, $extraction, $request->validated());
 
         return response()->json([
-                'message' => 'Extracted data verified and synced to profile successfully.',
-            ]);
-        }
+            'message' => 'Extracted data verified and synced to profile successfully.',
+        ]);
     }
+}
