@@ -3,7 +3,7 @@
 use App\Http\Controllers\Cv\CvController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum'])->prefix('cv')->group(function () {
+Route::middleware(['auth:api'])->prefix('cv')->group(function () {
     Route::post('/upload', [CvController::class, 'store']);
     Route::get('/history', [CvController::class, 'history']);
     Route::get('/status/{cvDocument}', [CvController::class, 'show']);
