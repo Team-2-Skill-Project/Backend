@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\CompanyController;
+use App\Http\Controllers\Admin\IngestionRunController;
 use App\Http\Controllers\Admin\JobPostController;
 use App\Http\Controllers\Admin\JobSourceController;
+use App\Http\Controllers\Admin\RawJobController;
 use App\Http\Controllers\Admin\SkillAliasController;
 use App\Http\Controllers\Admin\SkillController;
 use App\Http\Controllers\Admin\SkillMergeController;
@@ -89,6 +91,9 @@ Route::middleware(['auth:api', EnsureActiveCandidate::class])->group(function ()
 Route::middleware(['auth:api', EnsureActiveAdmin::class])->group(function (): void {
     Route::post('/admin/job-sources', [JobSourceController::class, 'store']);
     Route::get('/admin/job-sources', [JobSourceController::class, 'index']);
+    Route::get('/admin/job-sources/{jobSource}/raw-jobs', [RawJobController::class, 'index']);
+    Route::get('/admin/job-sources/{jobSource}/raw-jobs/{rawJob}', [RawJobController::class, 'show']);
+    Route::get('/admin/job-sources/{jobSource}/runs', [IngestionRunController::class, 'index']);
     Route::get('/admin/job-sources/{jobSource}', [JobSourceController::class, 'show']);
     Route::patch('/admin/job-sources/{jobSource}', [JobSourceController::class, 'update']);
     Route::post('/admin/companies', [CompanyController::class, 'store']);
