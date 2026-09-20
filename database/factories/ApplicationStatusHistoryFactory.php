@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Enums\ApplicationStatus;
 use App\Models\Application;
 use App\Models\User;
-use App\Enums\ApplicationStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ApplicationStatusHistoryFactory extends Factory

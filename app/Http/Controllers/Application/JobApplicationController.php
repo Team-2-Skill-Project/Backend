@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Application\StoreJobApplicationRequest;
 use App\Http\Resources\ApplicationResource;
 use App\Models\Application;
-use App\Traits\ApiResponse;
 use App\Services\JobApplicationService;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 
 class JobApplicationController extends Controller
 {
     use ApiResponse;
+
     protected JobApplicationService $applicationService;
 
     public function __construct(JobApplicationService $applicationService)
@@ -22,7 +23,6 @@ class JobApplicationController extends Controller
 
     /**
      * Display a listing of the job applications for the authenticated user, with optional filtering by status and search by job title.
-     *
      */
     public function index(Request $request)
     {
@@ -39,7 +39,7 @@ class JobApplicationController extends Controller
 
         if ($request->has('search')) {
             $search = $request->search;
-            $query->whereHas('job', function($q) use ($search) {
+            $query->whereHas('job', function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%");
             });
         }
@@ -63,7 +63,7 @@ class JobApplicationController extends Controller
         return (new ApplicationResource($application))
             ->additional([
                 'status' => 'success',
-                'message' => 'The request has been submitted successfully.'
+                'message' => 'The request has been submitted successfully.',
             ])
             ->response()
             ->setStatusCode(201);
@@ -92,7 +92,7 @@ class JobApplicationController extends Controller
 
         $request->validate([
             'status' => ['required', 'string'],
-            'notes' => ['nullable', 'string', 'max:500']
+            'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
         $updatedApplication = $this->applicationService->updateStatus(
@@ -106,7 +106,7 @@ class JobApplicationController extends Controller
         return (new ApplicationResource($updatedApplication))
             ->additional([
                 'status' => 'success',
-                'message' => 'The application status has been successfully updated.'
+                'message' => 'The application status has been successfully updated.',
             ]);
     }
 
@@ -130,7 +130,7 @@ class JobApplicationController extends Controller
         return (new ApplicationResource($updatedApplication))
             ->additional([
                 'status' => 'success',
-                'message' => 'The application has been successfully withdrawn.'
+                'message' => 'The application has been successfully withdrawn.',
             ]);
     }
 }

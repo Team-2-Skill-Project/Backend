@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\CvDocument;
 use App\Enums\CvExtractionStatus;
+use App\Models\CvDocument;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CvExtractionFactory extends Factory

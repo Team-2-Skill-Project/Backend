@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 
 class CvController extends Controller
 {
-    use AuthorizesRequests, ApiResponse;
+    use ApiResponse, AuthorizesRequests;
 
     public function __construct(protected CvService $cvService) {}
 
@@ -36,7 +36,7 @@ class CvController extends Controller
         return (new CvDocumentResource($cvDocument))
             ->additional([
                 'status' => 'success',
-                'message' => 'CV uploaded successfully and queued for processing.'
+                'message' => 'CV uploaded successfully and queued for processing.',
             ])
             ->response()
             ->setStatusCode(201);
@@ -81,7 +81,7 @@ class CvController extends Controller
         return (new CvDocumentResource($updatedCv))
             ->additional([
                 'status' => 'success',
-                'message' => 'CV processing retried successfully.'
+                'message' => 'CV processing retried successfully.',
             ]);
     }
 

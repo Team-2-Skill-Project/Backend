@@ -56,15 +56,15 @@ class JobApplicationService
             : (string) $application->status;
 
         // Check if the transition is allowed
-        if (!in_array($newStatus, $this->allowedTransitions[$currentStatusValue] ?? [])) {
+        if (! in_array($newStatus, $this->allowedTransitions[$currentStatusValue] ?? [])) {
             throw ValidationException::withMessages([
-                'status' => "It is not possible to transition from the state ({$currentStatusValue}) To state ({$newStatus})."
+                'status' => "It is not possible to transition from the state ({$currentStatusValue}) To state ({$newStatus}).",
             ]);
         }
 
         return DB::transaction(function () use ($application, $currentStatusValue, $newStatus, $notes) {
             $application->update([
-                'status' => $newStatus
+                'status' => $newStatus,
             ]);
 
             // add a new record to the ApplicationStatusHistory table

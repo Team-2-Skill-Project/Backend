@@ -9,7 +9,7 @@ trait ApiResponse
     /**
      * Return a success JSON response.
      */
-    protected function successResponse($data, string $message = null, int $code = 200): JsonResponse
+    protected function successResponse($data, ?string $message = null, int $code = 200): JsonResponse
     {
         return response()->json([
             'status' => 'success',

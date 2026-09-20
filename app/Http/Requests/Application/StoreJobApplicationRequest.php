@@ -10,6 +10,7 @@ class StoreJobApplicationRequest extends FormRequest
     public function authorize(): bool
     {
         return $this->user() && $this->user()->candidateProfile !== null;
+
         return true;
     }
 

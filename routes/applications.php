@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Application\JobApplicationController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:api'])->prefix('applications')->group(function () {
     Route::get('/', [JobApplicationController::class, 'index']);
