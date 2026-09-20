@@ -11,17 +11,13 @@ class SetLocale
 {
     public function handle(Request $request, Closure $next): Response
     {
+        $locale = $request->header('Accept-Language') ?? $request->query('lang');
 
-        // get the locale from the request header or use the default locale
-        $locale = $request->header('Accept-Language', config('app.fallback_locale'));
-
-        // validate the locale, if it's not supported, fallback to default
-        if (!in_array($locale, ['ar', 'en'])) {
-            $locale = config('app.fallback_locale');
+        if ($locale && in_array($locale, ['ar', 'en'])) {
+            App::setLocale($locale);
+        } else {
+            App::setLocale(config('app.fallback_locale', 'en'));
         }
-
-        // set the application locale
-        App::setLocale($locale);
 
         return $next($request);
     }
