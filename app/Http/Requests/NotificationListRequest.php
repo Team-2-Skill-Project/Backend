@@ -28,4 +28,10 @@ class NotificationListRequest extends FormRequest
             'unread_only' => ['sometimes', 'nullable', 'boolean'],
         ];
     }
+
+    /** @return array<string, string> */
+    public function attributes(): array
+    {
+        return trans('notifications.attributes');
+    }
 }
