@@ -2,23 +2,20 @@
 
 namespace Database\Factories;
 
-use App\Models\Application;
+use App\Models\CandidateProfile;
+use App\Enums\ApplicationStatus;
+use App\Models\JobPost;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends Factory<Application>
- */
 class ApplicationFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            //
+            'candidate_profile_id' => CandidateProfile::factory(),
+            'job_id' => JobPost::factory(),
+            'status' => ApplicationStatus::APPLIED,
+            'cover_letter' => $this->faker->paragraph(),
         ];
     }
 }

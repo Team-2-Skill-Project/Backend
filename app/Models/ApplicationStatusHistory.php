@@ -10,7 +10,6 @@ class ApplicationStatusHistory extends Model
 {
     use HasFactory;
 
-    // الجدول ده بيسجل تاريخ فقط ولا يحتاج updated_at
     const UPDATED_AT = null;
 
     protected $fillable = [

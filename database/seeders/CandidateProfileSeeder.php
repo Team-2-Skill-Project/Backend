@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use App\Models\CandidateProfile;
 use App\Models\CandidateSkill;
 use App\Models\CareerPreference;
@@ -17,9 +18,12 @@ class CandidateProfileSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call(SkillSeeder::class);
+        $user = User::first() ?? User::factory()->create([
+            'email' => 'test@example.com',
+        ]);
 
         $profile = CandidateProfile::factory()
+            ->for($user) //
             ->has(Education::factory(), 'educations')
             ->has(Experience::factory(), 'experiences')
             ->has(Project::factory(), 'projects')
@@ -28,9 +32,11 @@ class CandidateProfileSeeder extends Seeder
             ->has(CareerPreference::factory(), 'careerPreference')
             ->create();
 
-        $profile->skills()->attach(
-            Skill::query()->where('name', 'Laravel')->sole(),
-            ['source' => CandidateSkill::SOURCE_MANUAL],
-        );
+        $skill = Skill::query()->where('name', 'Laravel')->first();
+        if ($skill) {
+            $profile->skills()->syncWithoutDetaching([
+                $skill->id => ['source' => CandidateSkill::SOURCE_MANUAL]
+            ]);
+        }
     }
 }
