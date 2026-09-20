@@ -50,27 +50,28 @@ class JobApplicationService
      */
     public function updateStatus(Application $application, string $newStatus, ?string $notes = null): Application
     {
-        $currentStatus = $application->status->value;
+        // التعامل بأمان مع الـ status سواء كانت String أو Enum
+        $currentStatusValue = $application->status instanceof ApplicationStatus
+            ? $application->status->value
+            : (string) $application->status;
 
         // Check if the transition is allowed
-        if (!in_array($newStatus, $this->allowedTransitions[$currentStatus] ?? [])) {
+        if (!in_array($newStatus, $this->allowedTransitions[$currentStatusValue] ?? [])) {
             throw ValidationException::withMessages([
-                'status' => "It is not possible to transition from the state ({$currentStatus}) To state ({$newStatus})."
+                'status' => "It is not possible to transition from the state ({$currentStatusValue}) To state ({$newStatus})."
             ]);
         }
 
-        return DB::transaction(function () use ($application, $currentStatus, $newStatus, $notes) {
-            $oldStatus = $application->status;
-
+        return DB::transaction(function () use ($application, $currentStatusValue, $newStatus, $notes) {
             $application->update([
                 'status' => $newStatus
             ]);
 
             // add a new record to the ApplicationStatusHistory table
             ApplicationStatusHistory::create([
-                'job_application_id' => $application->id,
+                'application_id' => $application->id,
                 'changed_by' => auth()->id(),
-                'old_status' => $oldStatus->value,
+                'old_status' => $currentStatusValue,
                 'new_status' => $newStatus,
                 'notes' => $notes ?? 'The status has been updated.',
             ]);

@@ -1,5 +1,8 @@
 {
-    "agents": ["antigravity", "junie"],
+    "agents": [
+        "antigravity",
+        "junie"
+    ],
     "cloud": false,
     "guidelines": true,
     "mcp": true,
@@ -11,6 +14,7 @@
         "laravel-best-practices",
         "testing-best-practices",
         "wayfinder-development",
+        "inertia-react-development",
         "tailwindcss-development"
     ]
 }

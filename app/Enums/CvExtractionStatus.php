@@ -6,7 +6,7 @@ enum CvExtractionStatus: string
 {
     case PENDING = 'pending';
     case PROCESSING = 'processing';
-    case COMPLETED = 'completed';
+    case SUCCESS = 'SUCCESS';
     case FAILED = 'failed';
 
     /** @return array<int, string> */
