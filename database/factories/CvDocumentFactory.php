@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\CandidateProfile;
 use App\Enums\CvParsingStatus;
+use App\Models\CandidateProfile;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CvDocumentFactory extends Factory
@@ -12,9 +12,9 @@ class CvDocumentFactory extends Factory
     {
         return [
             'candidate_profile_id' => CandidateProfile::factory(),
-            'original_filename' => $this->faker->word() . '_CV.pdf',
+            'original_filename' => $this->faker->word().'_CV.pdf',
             'storage_disk' => 'public',
-            'storage_path' => 'cvs/' . $this->faker->uuid() . '.pdf',
+            'storage_path' => 'cvs/'.$this->faker->uuid().'.pdf',
             'mime_type' => 'application/pdf',
             'file_size' => $this->faker->numberBetween(100000, 2000000),
             'file_hash' => hash('sha256', uniqid()),
