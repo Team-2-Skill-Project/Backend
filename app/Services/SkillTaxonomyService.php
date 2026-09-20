@@ -14,6 +14,14 @@ use Illuminate\Validation\ValidationException;
 
 class SkillTaxonomyService
 {
+    public function resolve(string $name): ?Skill
+    {
+        $normalized = $this->normalize($name);
+        $skill = Skill::query()->where('normalized_name', $normalized)->first();
+
+        return $skill ?? SkillAlias::query()->where('normalized_alias', $normalized)->first()?->skill;
+    }
+
     public function normalize(string $name): string
     {
         return Str::lower(Str::trim($name));

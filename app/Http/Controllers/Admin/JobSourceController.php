@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\JobSourceSaveRequest;
 use App\Http\Resources\JobSourceResource;
 use App\Models\JobSource;
 use App\Models\User;
+use App\Services\JobSourceHealthService;
 use App\Services\JobSourceManagementService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -45,9 +46,9 @@ class JobSourceController extends Controller
         return response()->json(['data' => (new JobSourceResource($source->refresh()))->resolve($request)], 201);
     }
 
-    public function show(JobSource $jobSource): JobSourceResource
+    public function show(JobSource $jobSource, JobSourceHealthService $health): JobSourceResource
     {
-        return new JobSourceResource($jobSource);
+        return (new JobSourceResource($jobSource))->additional(['health' => $health->forSource($jobSource)]);
     }
 
     public function update(JobSourceSaveRequest $request, JobSource $jobSource, JobSourceManagementService $sources): JobSourceResource

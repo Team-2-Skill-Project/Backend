@@ -145,7 +145,10 @@ it('validates merged schedule and method configuration on partial patches', func
 
 it('lists paginated sources with configuration filters and name or slug search', function () {
     $match = JobSource::factory()->create(['name' => 'Distinct Source', 'slug' => 'distinct-source', 'source_type' => 'authorized', 'collection_method' => 'scraper', 'is_active' => false, 'schedule_enabled' => true, 'schedule_expression' => '0 * * * *']);
-    JobSource::factory()->count(2)->create();
+    JobSource::factory()->count(2)->sequence(
+        ['name' => 'Unrelated One', 'slug' => 'unrelated-one'],
+        ['name' => 'Unrelated Two', 'slug' => 'unrelated-two'],
+    )->create();
     $this->withToken(jobSourceAdminToken());
 
     $this->getJson('/api/admin/job-sources?per_page=1')->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('meta.total', 3);
@@ -159,7 +162,7 @@ it('lists paginated sources with configuration filters and name or slug search',
 });
 
 it('localizes feature errors without translating machine values', function (string $locale, string $message) {
-    app()->setLocale($locale);
+    $this->withHeader('Accept-Language', $locale);
     $this->withToken(jobSourceAdminToken());
 
     $this->postJson('/api/admin/job-sources', jobSourcePayload(['schedule_enabled' => true]))

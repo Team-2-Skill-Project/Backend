@@ -18,7 +18,7 @@ class CareerPreferenceController extends Controller
         $profile = $user->candidateProfile()->first();
 
         if (! $profile) {
-            return response()->json(['message' => 'Candidate profile not found.'], 404);
+            return response()->json(['message' => __('candidate_profile.not_found')], 404);
         }
 
         $preference = $profile->careerPreference;
@@ -35,7 +35,7 @@ class CareerPreferenceController extends Controller
         $profile = $user->candidateProfile()->first();
 
         if (! $profile) {
-            return response()->json(['message' => 'Candidate profile not found.'], 404);
+            return response()->json(['message' => __('candidate_profile.not_found')], 404);
         }
 
         $preference = $profile->careerPreference()->updateOrCreate([], $request->validated());

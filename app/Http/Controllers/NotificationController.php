@@ -41,7 +41,12 @@ class NotificationController extends Controller
     {
         /** @var User $user */
         $user = $request->user('api');
-        $record = $user->appNotifications()->whereKey($notification)->firstOrFail();
+        $record = $user->appNotifications()->whereKey($notification)->first();
+
+        if ($record === null) {
+            return response()->json(['message' => __('notifications.not_found')], 404);
+        }
+
         $record->markAsRead();
 
         return response()->json(['data' => (new NotificationResource($record->refresh()))->resolve($request)]);

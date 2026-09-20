@@ -9,20 +9,31 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SetLocale
 {
+    /** @var list<string> */
+    private const SUPPORTED_LOCALES = ['ar', 'en'];
+
+    /**
+     * Handle an incoming request.
+     *
+     * @param  Closure(Request): (Response)  $next
+     */
     public function handle(Request $request, Closure $next): Response
     {
-
-        // get the locale from the request header or use the default locale
-        $locale = $request->header('Accept-Language', config('app.fallback_locale'));
-
-        // validate the locale, if it's not supported, fallback to default
-        if (!in_array($locale, ['ar', 'en'])) {
-            $locale = config('app.fallback_locale');
-        }
-
-        // set the application locale
-        App::setLocale($locale);
+        App::setLocale($this->preferredLocale($request));
 
         return $next($request);
+    }
+
+    private function preferredLocale(Request $request): string
+    {
+        foreach ($request->getLanguages() as $language) {
+            $locale = strtolower(explode('_', $language, 2)[0]);
+
+            if (in_array($locale, self::SUPPORTED_LOCALES, true)) {
+                return $locale;
+            }
+        }
+
+        return (string) config('app.fallback_locale', 'en');
     }
 }

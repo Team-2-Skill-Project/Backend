@@ -16,11 +16,11 @@ class EnsureActiveCandidate
         $user = $request->user('api');
 
         if (! $user->is_active) {
-            return response()->json(['message' => 'Your account is inactive.'], 403);
+            return response()->json(['message' => __('candidate_profile.account_inactive')], 403);
         }
 
         if ($user->role !== 'candidate') {
-            return response()->json(['message' => 'Only candidates can access this profile.'], 403);
+            return response()->json(['message' => __('candidate_profile.candidate_only')], 403);
         }
 
         return $next($request);

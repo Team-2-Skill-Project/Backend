@@ -21,7 +21,7 @@ class ProjectRequest extends FormRequest
         $profile = $user->candidateProfile()->first();
 
         if (! $profile) {
-            throw new HttpResponseException(response()->json(['message' => 'Candidate profile not found.'], 404));
+            throw new HttpResponseException(response()->json(['message' => __('candidate_profile.not_found')], 404));
         }
 
         $this->candidateProfile = $profile;
@@ -42,7 +42,7 @@ class ProjectRequest extends FormRequest
     public function project(): Project
     {
         if (! $this->ownedProject) {
-            throw new HttpResponseException(response()->json(['message' => 'Project not found.'], 404));
+            throw new HttpResponseException(response()->json(['message' => __('candidate_profile.project.not_found')], 404));
         }
 
         return $this->ownedProject;
