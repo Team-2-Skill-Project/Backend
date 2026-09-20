@@ -38,7 +38,7 @@ class CandidateSkillController extends Controller
             );
 
             if (! $candidateSkill->wasRecentlyCreated) {
-                throw ValidationException::withMessages(['name' => 'This skill is already attached to your profile.']);
+                throw ValidationException::withMessages(['name' => __('candidate_profile.skill.already_attached')]);
             }
 
             return $candidateSkill;

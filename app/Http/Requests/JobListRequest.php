@@ -57,4 +57,10 @@ class JobListRequest extends FormRequest
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
         ];
     }
+
+    /** @return array<string, string> */
+    public function attributes(): array
+    {
+        return trans('jobs.attributes');
+    }
 }

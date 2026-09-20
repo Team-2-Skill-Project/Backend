@@ -20,7 +20,7 @@ class GoogleAuthController extends Controller
     public function redirect(Request $request): RedirectResponse
     {
         if (! $this->configured()) {
-            return $this->failure('Google sign-in is unavailable. Please try another sign-in method.');
+            return $this->failure(__('auth.google.unavailable'));
         }
 
         $state = Str::random(64);
@@ -46,16 +46,16 @@ class GoogleAuthController extends Controller
 
         if (! is_array($pending) || ! is_string($state) || ! is_string($pending['state'] ?? null)
             || ! hash_equals($pending['state'], $state) || ($pending['expires_at'] ?? 0) <= now()->timestamp) {
-            return $this->failure('Your Google sign-in session expired or was invalid. Please try again.');
+            return $this->failure(__('auth.google.invalid_session'));
         }
 
         if ($request->has('error')) {
-            return $this->failure('Google sign-in was cancelled or declined. Please try again.');
+            return $this->failure(__('auth.google.cancelled'));
         }
 
         $code = $request->query('code');
         if (! is_string($code) || blank($code) || strlen($code) > 4096 || ! $this->configured()) {
-            return $this->failure('Google sign-in could not be completed. Please try again.');
+            return $this->failure(__('auth.google.failed'));
         }
 
         try {
@@ -88,7 +88,7 @@ class GoogleAuthController extends Controller
                 'picture' => ['nullable', 'string', 'url:https', 'max:2048'],
             ]);
             if ($validator->fails() || ($profile['email_verified'] ?? false) !== true) {
-                return $this->failure('Google must provide a verified email address to sign in.');
+                return $this->failure(__('auth.google.verified_email_required'));
             }
 
             $profile = $validator->validated();
@@ -130,7 +130,7 @@ class GoogleAuthController extends Controller
         } catch (Throwable $exception) {
             Log::warning('Google OAuth failed', ['exception' => $exception::class]);
 
-            return $this->failure('Google sign-in could not be completed. Please try again or use your existing login.');
+            return $this->failure(__('auth.google.failed_with_alternative'));
         }
     }
 

@@ -18,7 +18,11 @@ class SavedJobController extends Controller
     {
         /** @var User $user */
         $user = $request->user('api');
-        $job = JobPost::query()->findOrFail($jobPost);
+        $job = JobPost::query()->find($jobPost);
+
+        if ($job === null) {
+            return response()->json(['message' => __('jobs.not_found')], 404);
+        }
 
         try {
             $savedJob = SavedJob::query()->firstOrCreate([
@@ -41,7 +45,11 @@ class SavedJobController extends Controller
     {
         /** @var User $user */
         $user = $request->user('api');
-        $job = JobPost::query()->findOrFail($jobPost);
+        $job = JobPost::query()->find($jobPost);
+
+        if ($job === null) {
+            return response()->json(['message' => __('jobs.not_found')], 404);
+        }
 
         SavedJob::query()->where('user_id', $user->id)->where('job_post_id', $job->id)->delete();
 

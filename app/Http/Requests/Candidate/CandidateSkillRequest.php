@@ -21,7 +21,7 @@ class CandidateSkillRequest extends FormRequest
         $profile = $user->candidateProfile()->first();
 
         if (! $profile) {
-            throw new HttpResponseException(response()->json(['message' => 'Candidate profile not found.'], 404));
+            throw new HttpResponseException(response()->json(['message' => __('candidate_profile.not_found')], 404));
         }
 
         $this->candidateProfile = $profile;
@@ -42,7 +42,7 @@ class CandidateSkillRequest extends FormRequest
     public function candidateSkill(): CandidateSkill
     {
         if (! $this->ownedCandidateSkill) {
-            throw new HttpResponseException(response()->json(['message' => 'Candidate skill not found.'], 404));
+            throw new HttpResponseException(response()->json(['message' => __('candidate_profile.skill.not_found')], 404));
         }
 
         return $this->ownedCandidateSkill;

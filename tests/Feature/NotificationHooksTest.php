@@ -34,6 +34,7 @@ it('creates localized job and roadmap notifications with stable metadata', funct
 })->with([
     'English' => ['en', 'New relevant job', 'A new job matching your profile is available.', 'Roadmap reminder', 'You have a roadmap step waiting for you.'],
     'Arabic' => ['ar', 'وظيفة جديدة تناسبك', 'تتوفر وظيفة جديدة تتناسب مع ملفك الشخصي.', 'تذكير بخطة التطوير', 'لديك خطوة في خطة التطوير تنتظر إنجازها.'],
+    'unsupported locale' => ['fr', 'New relevant job', 'A new job matching your profile is available.', 'Roadmap reminder', 'You have a roadmap step waiting for you.'],
 ]);
 
 it('deduplicates job notices per candidate and job even after reading or changing locale', function () {
