@@ -21,7 +21,7 @@ class EducationRequest extends FormRequest
         $profile = $user->candidateProfile()->first();
 
         if (! $profile) {
-            throw new HttpResponseException(response()->json(['message' => 'Candidate profile not found.'], 404));
+            throw new HttpResponseException(response()->json(['message' => __('candidate_profile.not_found')], 404));
         }
 
         $this->candidateProfile = $profile;
@@ -42,7 +42,7 @@ class EducationRequest extends FormRequest
     public function education(): Education
     {
         if (! $this->ownedEducation) {
-            throw new HttpResponseException(response()->json(['message' => 'Education not found.'], 404));
+            throw new HttpResponseException(response()->json(['message' => __('candidate_profile.education.not_found')], 404));
         }
 
         return $this->ownedEducation;
