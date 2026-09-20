@@ -22,7 +22,7 @@ class EmailOtpService
 
             $previous = EmailOtp::where('user_id', $user->id)->where('purpose', $purpose)->first();
             if ($previous?->last_sent_at?->greaterThan(now()->subMinute())) {
-                throw new TooManyRequestsHttpException(60, 'Please wait one minute before requesting another code.');
+                throw new TooManyRequestsHttpException(60, __('auth.wait_before_new_code'));
             }
 
             EmailOtp::where('user_id', $user->id)->where('purpose', $purpose)->delete();

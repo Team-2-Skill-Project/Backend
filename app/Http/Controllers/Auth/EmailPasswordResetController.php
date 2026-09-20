@@ -27,22 +27,22 @@ class EmailPasswordResetController extends Controller
                 $user = User::whereRaw('LOWER(email) = ?', [Str::lower($request->validated('email'))])->lockForUpdate()->first();
 
                 if (! $user) {
-                    return $this->invalid('email', 'Unable to send a reset code. Check the email address and try again.');
+                    return $this->invalid('email', __('auth.reset_code_failed'));
                 }
 
                 $previousOtp = $this->resetOtp($user);
 
                 if ($previousOtp?->last_sent_at?->greaterThan(now()->subMinute())) {
-                    return response()->json(['message' => 'Please wait one minute before requesting another code.'], 429)
+                    return response()->json(['message' => __('auth.wait_before_new_code')], 429)
                         ->header('Retry-After', '60');
                 }
 
                 $emailOtpService->send($user, EmailOtp::PASSWORD_RESET);
 
-                return response()->json(['message' => 'A password reset code has been sent to your email.']);
+                return response()->json(['message' => __('auth.password_reset_code_sent')]);
             });
         } catch (TransportExceptionInterface) {
-            return response()->json(['message' => 'Unable to send the email code. Please try again shortly.'], 503);
+            return response()->json(['message' => __('auth.email_code_failed')], 503);
         }
     }
 
@@ -55,17 +55,17 @@ class EmailPasswordResetController extends Controller
             $emailOtp = $user ? $this->resetOtp($user) : null;
 
             if (! $emailOtp || $emailOtp->reset_token_hash || now()->greaterThanOrEqualTo($emailOtp->expires_at)) {
-                return $this->invalid('otp', 'The code is invalid or expired. Request a new code.');
+                return $this->invalid('otp', __('auth.invalid_or_expired_code'));
             }
 
             if ($emailOtp->attempts >= 5) {
-                return response()->json(['message' => 'Too many invalid attempts. Request a new code.'], 429);
+                return response()->json(['message' => __('auth.too_many_invalid_attempts')], 429);
             }
 
             if (! Hash::check($validated['otp'], $emailOtp->code_hash)) {
                 $emailOtp->increment('attempts');
 
-                return $this->invalid('otp', 'The code is invalid or expired. Request a new code.');
+                return $this->invalid('otp', __('auth.invalid_or_expired_code'));
             }
 
             $resetToken = Str::random(64);
@@ -75,7 +75,7 @@ class EmailPasswordResetController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Code verified. You may now reset your password.',
+                'message' => __('auth.reset_code_verified'),
                 'reset_token' => $resetToken,
                 'expires_in' => 600,
             ])->header('Cache-Control', 'no-store');
@@ -96,7 +96,7 @@ class EmailPasswordResetController extends Controller
             if (! $emailOtp?->reset_token_hash || ! $emailOtp->reset_token_expires_at
                 || now()->greaterThanOrEqualTo($emailOtp->reset_token_expires_at)
                 || ! Hash::check($validated['reset_token'], $emailOtp->reset_token_hash)) {
-                return $this->invalid('reset_token', 'The password reset session is invalid or expired. Request a new code.');
+                return $this->invalid('reset_token', __('auth.invalid_reset_session'));
             }
 
             $user->password = Hash::make($validated['password']);
@@ -107,7 +107,7 @@ class EmailPasswordResetController extends Controller
             Password::broker(config('fortify.passwords'))->deleteToken($user);
             event(new PasswordReset($user));
 
-            return response()->json(['message' => 'Password reset successfully. Please log in.']);
+            return response()->json(['message' => __('auth.password_reset_successful')]);
         });
     }
 

@@ -21,7 +21,7 @@ class ExperienceRequest extends FormRequest
         $profile = $user->candidateProfile()->first();
 
         if (! $profile) {
-            throw new HttpResponseException(response()->json(['message' => 'Candidate profile not found.'], 404));
+            throw new HttpResponseException(response()->json(['message' => __('candidate_profile.not_found')], 404));
         }
 
         $this->candidateProfile = $profile;
@@ -42,7 +42,7 @@ class ExperienceRequest extends FormRequest
     public function experience(): Experience
     {
         if (! $this->ownedExperience) {
-            throw new HttpResponseException(response()->json(['message' => 'Experience not found.'], 404));
+            throw new HttpResponseException(response()->json(['message' => __('candidate_profile.experience.not_found')], 404));
         }
 
         return $this->ownedExperience;

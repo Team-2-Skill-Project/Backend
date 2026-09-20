@@ -153,4 +153,10 @@ class JobPost extends Model
     {
         return $this->hasMany(SavedJob::class);
     }
+
+    /** @return HasMany<JobSourceReference, $this> */
+    public function sourceReferences(): HasMany
+    {
+        return $this->hasMany(JobSourceReference::class);
+    }
 }

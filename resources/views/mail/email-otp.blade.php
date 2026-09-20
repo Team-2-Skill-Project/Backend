@@ -1,17 +1,17 @@
 <x-mail::message>
 # SkillMatch
 
-{{ $purpose === \App\Models\EmailOtp::PASSWORD_RESET ? 'Reset your password' : 'Verify your email address' }}
+{{ $purpose === \App\Models\EmailOtp::PASSWORD_RESET ? __('auth.mail.reset_password') : __('auth.mail.verify_email') }}
 
-Your verification code is:
+{{ __('auth.mail.verification_code') }}
 
 <x-mail::panel>
 {{ $code }}
 </x-mail::panel>
 
-This code expires in 10 minutes ({{ $expiresAt->format('H:i T') }}).
+{{ __('auth.mail.expires', ['time' => $expiresAt->format('H:i T')]) }}
 
-Do not share this code with anyone. If you did not request it, you can ignore this email.
+{{ __('auth.mail.security_notice') }}
 
-The SkillMatch team
+{{ __('auth.mail.team') }}
 </x-mail::message>

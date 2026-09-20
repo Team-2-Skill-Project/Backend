@@ -15,7 +15,7 @@ class EmailOtpMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(subject: $this->purpose === EmailOtp::PASSWORD_RESET
-            ? 'SkillMatch password reset code' : 'SkillMatch email verification code');
+            ? __('auth.mail.password_reset_subject') : __('auth.mail.email_verification_subject'));
     }
 
     public function content(): Content

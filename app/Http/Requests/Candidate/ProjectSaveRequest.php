@@ -39,7 +39,7 @@ class ProjectSaveRequest extends ProjectRequest
             $endDate = $this->has('end_date') ? $this->date('end_date') : $project?->end_date;
 
             if ($startDate && $endDate && Carbon::parse($endDate)->lt(Carbon::parse($startDate))) {
-                $validator->errors()->add('end_date', 'The end date must be on or after the start date.');
+                $validator->errors()->add('end_date', __('candidate_profile.validation.end_date_before_start'));
             }
         }];
     }

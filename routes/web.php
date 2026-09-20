@@ -9,6 +9,7 @@ Route::middleware(['guest', 'throttle:10,1'])->group(function () {
 });
 
 Route::inertia('/', 'welcome')->name('home');
+Route::redirect('/login.html', '/dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');

@@ -41,11 +41,11 @@ class EducationSaveRequest extends EducationRequest
             $isCurrent = $this->has('is_current') ? $this->boolean('is_current') : ($education->is_current ?? false);
 
             if ($startDate && $endDate && Carbon::parse($endDate)->lt(Carbon::parse($startDate))) {
-                $validator->errors()->add('end_date', 'The end date must be on or after the start date.');
+                $validator->errors()->add('end_date', __('candidate_profile.validation.end_date_before_start'));
             }
 
             if ($isCurrent && $endDate) {
-                $validator->errors()->add('end_date', 'The end date must be null when education is current.');
+                $validator->errors()->add('end_date', __('candidate_profile.validation.current_education_end_date'));
             }
         }];
     }
