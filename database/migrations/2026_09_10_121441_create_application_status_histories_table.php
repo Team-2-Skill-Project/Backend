@@ -6,20 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('application_status_histories', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('application_id')->constrained('applications')->cascadeOnDelete();
+
+            $table->foreignId('changed_by')->nullable()->constrained('users')->nullOnDelete();
+
+            $table->string('old_status')->nullable();
+            $table->string('new_status');
+            $table->text('notes')->nullable();
+
+            $table->timestamp('created_at')->useCurrent();
+
+            $table->index('application_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('application_status_histories');

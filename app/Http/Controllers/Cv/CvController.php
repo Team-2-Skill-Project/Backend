@@ -5,47 +5,59 @@ namespace App\Http\Controllers\Cv;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cv\UploadCvRequest;
 use App\Http\Requests\Cv\VerifyCvExtractionRequest;
+use App\Http\Resources\CvDocumentResource;
 use App\Models\CvDocument;
 use App\Models\CvExtraction;
 use App\Services\CvService;
+use App\Traits\ApiResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CvController extends Controller
 {
-    use AuthorizesRequests;
+    use AuthorizesRequests, ApiResponse;
 
     public function __construct(protected CvService $cvService) {}
 
-    public function store(UploadCvRequest $request): JsonResponse
+    /**
+     * Upload a new CV document for the authenticated user, replacing any existing CV.
+     */
+    public function store(UploadCvRequest $request)
     {
         $profile = $request->user()->candidateProfile;
 
         if (! $profile) {
-            return response()->json(['message' => 'Candidate profile not found.'], 404);
+            return $this->errorResponse('Candidate profile not found.', 404);
         }
 
         $cvDocument = $this->cvService->uploadOrReplaceCv($profile, $request->file('cv'));
+        $cvDocument->load('extractions');
 
-        return response()->json([
-            'message' => 'CV uploaded successfully and queued for processing.',
-            'data' => $cvDocument,
-        ], 201);
+        return (new CvDocumentResource($cvDocument))
+            ->additional([
+                'status' => 'success',
+                'message' => 'CV uploaded successfully and queued for processing.'
+            ])
+            ->response()
+            ->setStatusCode(201);
     }
 
-    public function show(Request $request, CvDocument $cvDocument): JsonResponse
+    /**
+     * Display the specified CV document along with its extractions.
+     */
+    public function show(Request $request, CvDocument $cvDocument)
     {
         $this->authorize('view', $cvDocument);
 
         $cvDocument->load('extractions');
 
-        return response()->json([
-            'data' => $cvDocument,
-        ]);
+        return new CvDocumentResource($cvDocument);
     }
 
-    public function history(Request $request): JsonResponse
+    /**
+     * Display a listing of the CV documents for the authenticated user, ordered by version.
+     */
+    public function history(Request $request)
     {
         $profile = $request->user()->candidateProfile;
 
@@ -53,29 +65,35 @@ class CvController extends Controller
             ->orderBy('version', 'desc')
             ->get();
 
-        return response()->json(['data' => $history]);
+        return CvDocumentResource::collection($history);
     }
 
-    public function retry(Request $request, CvDocument $cvDocument): JsonResponse
+    /**
+     * Retry processing a CV document that previously failed.
+     */
+    public function retry(Request $request, CvDocument $cvDocument)
     {
         $this->authorize('update', $cvDocument);
 
         $updatedCv = $this->cvService->retryProcessing($cvDocument);
+        $updatedCv->load('extractions');
 
-        return response()->json([
-            'message' => 'CV processing retried successfully.',
-            'data' => $updatedCv,
-        ]);
+        return (new CvDocumentResource($updatedCv))
+            ->additional([
+                'status' => 'success',
+                'message' => 'CV processing retried successfully.'
+            ]);
     }
 
-    public function verify(VerifyCvExtractionRequest $request, CvExtraction $extraction): JsonResponse
+    /**
+     * Verify the extracted data from a CV extraction and sync it to the candidate profile.
+     */
+    public function verify(VerifyCvExtractionRequest $request, CvExtraction $extraction)
     {
         $profile = $request->user()->candidateProfile;
 
         $this->cvService->verifyAndSyncExtractedData($profile, $extraction, $request->validated());
 
-        return response()->json([
-            'message' => 'Extracted data verified and synced to profile successfully.',
-        ]);
+        return $this->successResponse(null, 'Extracted data verified and synced to profile successfully.');
     }
 }

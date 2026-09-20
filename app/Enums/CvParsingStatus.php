@@ -6,7 +6,7 @@ enum CvParsingStatus: string
 {
     case UPLOADED = 'uploaded';
     case PROCESSING = 'processing';
-    case PROCESSED = 'processed';
+    case COMPLETED = 'completed';
     case FAILED = 'failed';
 
     /** @return array<int, string> */

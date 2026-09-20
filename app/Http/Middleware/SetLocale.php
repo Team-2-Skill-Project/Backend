@@ -34,6 +34,6 @@ class SetLocale
             }
         }
 
-        return 'en';
+        return (string) config('app.fallback_locale', 'en');
     }
 }
