@@ -34,14 +34,14 @@ class AuthController extends Controller
         $guard = Auth::guard('api');
 
         if (! $guard->validate($credentials)) {
-            return response()->json(['message' => 'Invalid credentials.'], 401);
+            return response()->json(['message' => __('auth.invalid_credentials')], 401);
         }
 
         /** @var User $user */
         $user = $guard->getLastAttempted();
 
         if (! $user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Email address is not verified.'], 403);
+            return response()->json(['message' => __('auth.email_not_verified')], 403);
         }
 
         return response()->json([
@@ -68,11 +68,11 @@ class AuthController extends Controller
                 return $user;
             });
         } catch (TransportExceptionInterface) {
-            return response()->json(['message' => 'Unable to send the email verification code. Please try registering again shortly.'], 503);
+            return response()->json(['message' => __('auth.registration_email_failed')], 503);
         }
 
         return response()->json([
-            'message' => 'Registration successful. A verification code has been sent to your email.',
+            'message' => __('auth.registration_successful'),
             'email' => $user->email,
             'user' => $user,
         ], 201);
@@ -95,7 +95,7 @@ class AuthController extends Controller
             }
 
             if ($otp->attempts >= 5) {
-                return response()->json(['message' => 'Too many invalid attempts. Request a new code.'], 429);
+                return response()->json(['message' => __('auth.too_many_invalid_attempts')], 429);
             }
 
             if (! Hash::check($validated['otp'], $otp->code_hash)) {
@@ -108,7 +108,7 @@ class AuthController extends Controller
             $otp->delete();
             event(new Verified($user));
 
-            return response()->json(['message' => 'Email verified successfully.', 'user' => $user]);
+            return response()->json(['message' => __('auth.email_verified'), 'user' => $user]);
         });
     }
 
@@ -120,20 +120,20 @@ class AuthController extends Controller
             return DB::transaction(function () use ($validated, $emailOtpService): JsonResponse {
                 $user = User::whereRaw('LOWER(email) = ?', [Str::lower($validated['email'])])->lockForUpdate()->first();
                 if (! $user || $user->hasVerifiedEmail()) {
-                    return response()->json(['message' => 'An unverified account is required.'], 422);
+                    return response()->json(['message' => __('auth.unverified_account_required')], 422);
                 }
                 $emailOtpService->send($user, EmailOtp::EMAIL_VERIFICATION);
 
-                return response()->json(['message' => 'A new verification code has been sent to your email.']);
+                return response()->json(['message' => __('auth.verification_code_resent')]);
             });
         } catch (TransportExceptionInterface) {
-            return response()->json(['message' => 'Unable to send the email code. Please try again shortly.'], 503);
+            return response()->json(['message' => __('auth.email_code_failed')], 503);
         }
     }
 
     private function invalidCode(): JsonResponse
     {
-        $message = 'The code is invalid or expired. Request a new code.';
+        $message = __('auth.invalid_or_expired_code');
 
         return response()->json(['message' => $message, 'errors' => ['otp' => [$message]]], 422);
     }

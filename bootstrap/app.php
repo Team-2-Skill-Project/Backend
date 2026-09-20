@@ -2,9 +2,13 @@
 
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SetLocale;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 
@@ -19,13 +23,32 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [
+            SetLocale::class,
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        $middleware->api(prepend: SetLocale::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        $exceptions->render(function (AuthenticationException $exception, Request $request): ?JsonResponse {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json(['message' => __('auth.unauthenticated')], 401);
+            }
+
+            return null;
+        });
+
+        $exceptions->render(function (ThrottleRequestsException $exception, Request $request): ?JsonResponse {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json(['message' => __('auth.too_many_requests')], 429, $exception->getHeaders());
+            }
+
+            return null;
+        });
     })->create();

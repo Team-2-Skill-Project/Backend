@@ -162,7 +162,7 @@ it('lists paginated sources with configuration filters and name or slug search',
 });
 
 it('localizes feature errors without translating machine values', function (string $locale, string $message) {
-    app()->setLocale($locale);
+    $this->withHeader('Accept-Language', $locale);
     $this->withToken(jobSourceAdminToken());
 
     $this->postJson('/api/admin/job-sources', jobSourcePayload(['schedule_enabled' => true]))
