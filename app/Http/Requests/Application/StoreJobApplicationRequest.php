@@ -10,6 +10,7 @@ class StoreJobApplicationRequest extends FormRequest
     public function authorize(): bool
     {
         return $this->user() && $this->user()->candidateProfile !== null;
+
         return true;
     }
 
@@ -26,14 +27,6 @@ class StoreJobApplicationRequest extends FormRequest
                 }),
             ],
             'cover_letter' => ['nullable', 'string', 'max:2000'],
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'job_id.unique' => 'You have already applied for this job; you cannot apply twice.',
-            'job_id.exists' => 'The requested job does not exist.',
         ];
     }
 }

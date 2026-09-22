@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\CandidateProfile;
 use App\Enums\ApplicationStatus;
+use App\Models\CandidateProfile;
 use App\Models\JobPost;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
