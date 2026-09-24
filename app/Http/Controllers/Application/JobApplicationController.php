@@ -8,7 +8,10 @@ use App\Http\Resources\ApplicationResource;
 use App\Models\Application;
 use App\Services\JobApplicationService;
 use App\Traits\ApiResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class JobApplicationController extends Controller
 {
@@ -24,7 +27,7 @@ class JobApplicationController extends Controller
     /**
      * Display a listing of the job applications for the authenticated user, with optional filtering by status and search by job title.
      */
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         $user = $request->user();
         $query = Application::query()->with(['job.company', 'candidateProfile.user', 'histories']);
@@ -52,7 +55,7 @@ class JobApplicationController extends Controller
     /**
      * Store a new job application and log the initial status in the history table.
      */
-    public function store(StoreJobApplicationRequest $request)
+    public function store(StoreJobApplicationRequest $request): Response|JsonResponse
     {
         $candidateProfileId = $request->user()->candidateProfile->id;
 
@@ -72,7 +75,7 @@ class JobApplicationController extends Controller
     /**
      * Show the details of a specific job application.
      */
-    public function show(Application $application)
+    public function show(Application $application): ApplicationResource
     {
         $application->load(['job.company', 'histories.changer', 'candidateProfile.user']);
 
@@ -82,7 +85,7 @@ class JobApplicationController extends Controller
     /**
      * Update the status of a job application (For Admin or Company Only).
      */
-    public function updateStatus(Request $request, Application $application)
+    public function updateStatus(Request $request, Application $application): ApplicationResource|JsonResponse
     {
         $user = $request->user();
 
@@ -113,7 +116,7 @@ class JobApplicationController extends Controller
     /**
      * Pull request to withdraw the application (For Candidate Only).
      */
-    public function withdraw(Application $application)
+    public function withdraw(Application $application): ApplicationResource|JsonResponse
     {
         if ($application->candidate_profile_id !== auth()->user()->candidateProfile->id) {
             return $this->errorResponse(__('application.unauthorized_action'), 403);

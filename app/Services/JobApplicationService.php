@@ -10,6 +10,7 @@ use Illuminate\Validation\ValidationException;
 
 class JobApplicationService
 {
+    /** @var array<string, array<int, string>> */
     protected array $allowedTransitions = [
         'applied' => ['in_review', 'withdrawn', 'rejected'],
         'in_review' => ['interview', 'rejected', 'offer', 'withdrawn'],
@@ -21,6 +22,10 @@ class JobApplicationService
 
     /**
      * Create a new job application and log the initial status in the history table.
+     */
+    /**
+     * @param  int|string  $candidateProfileId
+     * @param  array<string,mixed>  $data
      */
     public function createApplication($candidateProfileId, array $data): Application
     {
@@ -38,7 +43,7 @@ class JobApplicationService
                 'changed_by' => auth()->id(),
                 'old_status' => null,
                 'new_status' => ApplicationStatus::APPLIED->value,
-                'notes' => __('application.history_created', [], app()->getLocale()) ?? 'Created new application with status applied.'
+                'notes' => __('application.history_created', [], app()->getLocale()),
             ]);
 
             return $application;
@@ -50,16 +55,14 @@ class JobApplicationService
      */
     public function updateStatus(Application $application, string $newStatus, ?string $notes = null): Application
     {
-        $currentStatusValue = $application->status instanceof ApplicationStatus
-            ? $application->status->value
-            : (string) $application->status;
+        $currentStatusValue = (string) $application->getAttribute('status');
 
         // Check if the transition is allowed
         if (! in_array($newStatus, $this->allowedTransitions[$currentStatusValue] ?? [])) {
             throw ValidationException::withMessages([
                 'status' => __('application.invalid_transition', [
                     'from' => $currentStatusValue,
-                    'to' => $newStatus
+                    'to' => $newStatus,
                 ]) ?: "It is not possible to transition from the state ({$currentStatusValue}) To state ({$newStatus}).",
             ]);
         }
@@ -75,7 +78,7 @@ class JobApplicationService
                 'changed_by' => auth()->id(),
                 'old_status' => $currentStatusValue,
                 'new_status' => $newStatus,
-                'notes' => $notes ?? __('application.history_updated') ?? 'The status has been updated.',
+                'notes' => $notes ?? __('application.history_updated'),
             ]);
 
             return $application;
