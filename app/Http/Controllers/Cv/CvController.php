@@ -9,10 +9,12 @@ use App\Http\Resources\CvDocumentResource;
 use App\Models\CvDocument;
 use App\Models\CvExtraction;
 use App\Services\Ai\CvExtractionService;
-use App\Services\CvService; // استدعاء خدمة الذكاء الاصطناعي
+use App\Services\CvService;
 use App\Traits\ApiResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CvController extends Controller
 {
@@ -20,31 +22,27 @@ class CvController extends Controller
 
     public function __construct(
         protected CvService $cvService,
-        protected CvExtractionService $cvExtractionService // حقن خدمة الـ AI هنا
+        protected CvExtractionService $cvExtractionService
     ) {}
 
     /**
      * Upload a new CV document, link it to candidate profile, and start AI extraction.
      */
-    public function store(UploadCvRequest $request)
+    public function store(UploadCvRequest $request): JsonResponse
     {
         $user = $request->user();
 
-        // 1. التأكد من وجود البروفايل أو إنشاؤه لمنع إيرور الـ Database
         $profile = $user->candidateProfile()->firstOrCreate(
             ['user_id' => $user->id],
             ['full_name' => $user->name ?? 'Candidate']
         );
 
-        // 2. رفع الملف وإدارة الإصدارات عبر الخدمة الأساسية
         $cvDocument = $this->cvService->uploadOrReplaceCv($profile, $request->file('cv'));
 
-        // 3. تشغيل الذكاء الاصطناعي لتحليل البيانات واستخراجها فوراً
         try {
             $this->cvExtractionService->extractAndPersist($cvDocument);
         } catch (\Exception $e) {
-            // لو الـ AI حصل فيه مشكلة، الـ CV ارفع وتخزن عادي، بس بنعلم الحالة إن فيها خطأ
-            // عشان السيستم ما يقعش كله (Fail Gracefully)
+
             $cvDocument->update(['parsing_status' => 'failed']);
         }
 
@@ -62,7 +60,7 @@ class CvController extends Controller
     /**
      * Display the specified CV document along with its extractions.
      */
-    public function show(Request $request, CvDocument $cvDocument)
+    public function show(Request $request, CvDocument $cvDocument): CvDocumentResource
     {
         $this->authorize('view', $cvDocument);
         $cvDocument->load('extractions');
@@ -73,7 +71,7 @@ class CvController extends Controller
     /**
      * Display a listing of the CV documents for the authenticated user, ordered by version.
      */
-    public function history(Request $request)
+    public function history(Request $request): AnonymousResourceCollection|JsonResponse
     {
         $profile = $request->user()->candidateProfile;
 
@@ -91,13 +89,12 @@ class CvController extends Controller
     /**
      * Retry processing a CV document that previously failed.
      */
-    public function retry(Request $request, CvDocument $cvDocument)
+    public function retry(Request $request, CvDocument $cvDocument): CvDocumentResource
     {
         $this->authorize('update', $cvDocument);
 
         $updatedCv = $this->cvService->retryProcessing($cvDocument);
 
-        // إعادة محاولة الاستخراج بالذكاء الاصطناعي
         try {
             $this->cvExtractionService->extractAndPersist($updatedCv);
         } catch (\Exception $e) {
@@ -116,7 +113,7 @@ class CvController extends Controller
     /**
      * Verify the extracted data from a CV extraction and sync it to the candidate profile.
      */
-    public function verify(VerifyCvExtractionRequest $request, CvExtraction $extraction)
+    public function verify(VerifyCvExtractionRequest $request, CvExtraction $extraction): JsonResponse
     {
         $profile = $request->user()->candidateProfile;
 

@@ -10,8 +10,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * @extends Model<Application>
- *
  * @method static \Database\Factories\ApplicationFactory factory($count = null, $state = [])
  */
 class Application extends Model

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Ai;
 
+use App\Models\CandidateProfile;
 use App\Models\MentorChat;
 use App\Models\MentorMessage;
 use App\Models\User;
@@ -12,9 +15,15 @@ class AiMentorService extends BaseAiService
     /**
      * بناء السياق والتحقق من اكتماله (Missing Context Handling & Fallback)
      */
+    /**
+     * @return array<string,mixed>
+     */
     public function askMentor(User $user, ?int $jobId, string $question): array
     {
         $profile = $user->candidateProfile;
+
+        // Prevent phpstan undefined property warnings when CandidateProfile phpdoc may be missing
+        /** @var CandidateProfile|null $profile */
 
         // Fallback لو بيانات الـ Profile أو الـ CV ناقصة تماماً
         if (! $profile || ! $profile->target_role) {
@@ -30,7 +39,7 @@ class AiMentorService extends BaseAiService
             'saved_jobs' => $user->savedJobs()->with('job')->get()->toArray(),
             'applied_jobs' => $user->jobApplications()->with('job')->get()->toArray(),
             'skill_gaps' => $profile->skillGaps ?? [],
-            'roadmap' => $user->roadmaps()->with('phases.tasks')->first()?->toArray() ?? [],
+            'roadmap' => $user->roadmaps()->with('steps')->first()?->toArray() ?? [],
         ];
 
         $payload = [

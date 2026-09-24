@@ -6,6 +6,10 @@ use Illuminate\Http\JsonResponse;
 
 trait ApiResponse
 {
+    /**
+     * @param  mixed  $data
+     * @param  array<string,mixed>  $replace
+     */
     protected function successResponse($data, ?string $messageKey = null, array $replace = [], int $code = 200): JsonResponse
     {
         return response()->json([
@@ -15,6 +19,10 @@ trait ApiResponse
         ], $code);
     }
 
+    /**
+     * @param  array<string,mixed>  $replace
+     * @param  mixed|null  $errors
+     */
     protected function errorResponse(string $messageKey, int $code, array $replace = [], $errors = null): JsonResponse
     {
         $response = [

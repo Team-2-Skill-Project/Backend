@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Ai;
 
 use App\Models\CandidateProfile;
@@ -11,9 +13,13 @@ class CvExtractionService extends BaseAiService
     /**
      * إرسال الـ CV للـ AI واستخراج البيانات الهيكلية مع الـ Metadata
      */
+    /**
+     * @return array<string,mixed>
+     */
     public function extractAndPersist(CvDocument $cvDocument): array
     {
         // 1. تجهيز الـ Request Contract
+        /** @var CvDocument $cvDocument */
         $payload = [
             'candidate_id' => $cvDocument->user_id,
             'cv_version_id' => $cvDocument->id,

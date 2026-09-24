@@ -32,11 +32,14 @@ class CandidateProfileSeeder extends Seeder
             ->has(CareerPreference::factory(), 'careerPreference')
             ->create();
 
-        $skill = Skill::query()->where('name', 'Laravel')->first();
-        if ($skill) {
-            $profile->skills()->syncWithoutDetaching([
-                $skill->id => ['source' => CandidateSkill::SOURCE_MANUAL],
-            ]);
-        }
+        $skill = Skill::query()->firstOrCreate([
+            'name' => 'Laravel',
+            'normalized_name' => 'laravel',
+            'category' => 'Backend',
+        ]);
+
+        $profile->skills()->syncWithoutDetaching([
+            $skill->id => ['source' => CandidateSkill::SOURCE_MANUAL],
+        ]);
     }
 }

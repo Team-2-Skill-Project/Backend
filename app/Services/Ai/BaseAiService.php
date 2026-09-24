@@ -22,6 +22,10 @@ class BaseAiService
     /**
      * إرسال طلب موحد للـ AI مع تتبع الـ Metadata
      */
+    /**
+     * @param  array<string,mixed>  $payload
+     * @return array<string,mixed>
+     */
     protected function sendRequest(string $endpoint, array $payload): array
     {
         try {

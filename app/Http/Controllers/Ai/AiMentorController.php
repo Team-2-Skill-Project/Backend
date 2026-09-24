@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Ai;
 
 use App\Http\Controllers\Controller;
 use App\Services\Ai\AiMentorService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AiMentorController extends Controller
@@ -18,7 +19,7 @@ class AiMentorController extends Controller
     /**
      * إرسال سؤال للمرشد الذكي واستقبال الرد والسياق المدعوم
      */
-    public function ask(Request $request)
+    public function ask(Request $request): JsonResponse
     {
         $request->validate([
             'question' => 'required|string|max:1000',

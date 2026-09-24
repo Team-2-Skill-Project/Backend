@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Ai;
 use App\Http\Controllers\Controller;
 use App\Models\CvDocument;
 use App\Services\Ai\CvExtractionService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CvController extends Controller
@@ -16,10 +17,7 @@ class CvController extends Controller
         $this->cvExtractionService = $cvExtractionService;
     }
 
-    /**
-     * رفع ملف الـ CV وبدء عملية استخراج البيانات بالذكاء الاصطناعي
-     */
-    public function uploadAndExtract(Request $request)
+    public function uploadAndExtract(Request $request): JsonResponse
     {
         $request->validate([
             'cv' => 'required|file|mimes:pdf,doc,docx|max:5120',
@@ -28,7 +26,6 @@ class CvController extends Controller
         $user = $request->user();
         $file = $request->file('cv');
 
-        // حفظ الملف في الـ Storage
         $path = $file->store('cvs', 'public');
 
         $cvDocument = CvDocument::create([
@@ -38,7 +35,6 @@ class CvController extends Controller
             'parsing_status' => 'pending',
         ]);
 
-        // استدعاء خدمة الـ AI لتحليل البيانات
         $result = $this->cvExtractionService->extractAndPersist($cvDocument);
 
         return response()->json([

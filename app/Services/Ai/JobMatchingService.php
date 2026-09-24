@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Ai;
 
 use App\Models\CandidateProfile;
@@ -13,6 +15,8 @@ class JobMatchingService extends BaseAiService
      */
     public function calculateAndPersistMatch(CandidateProfile $profile, JobPost $job): JobMatch
     {
+        // Clarify $profile properties for static analysis
+        /** @var CandidateProfile $profile */
         $payload = [
             'candidate_profile' => $profile->load(['skills', 'experiences', 'projects']),
             'job_requirements' => $job->load(['jobSkills.skill']),
