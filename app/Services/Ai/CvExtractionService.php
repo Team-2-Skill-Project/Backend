@@ -2,8 +2,8 @@
 
 namespace App\Services\Ai;
 
-use App\Models\CvDocument;
 use App\Models\CandidateProfile;
+use App\Models\CvDocument;
 use Illuminate\Support\Facades\DB;
 
 class CvExtractionService extends BaseAiService
@@ -31,7 +31,7 @@ class CvExtractionService extends BaseAiService
             // تحديث حالة وثيقة الـ CV
             $cvDocument->update([
                 'parsing_status' => 'completed',
-                'raw_extracted_text' => json_encode($output, JSON_UNESCAPED_UNICODE)
+                'raw_extracted_text' => json_encode($output, JSON_UNESCAPED_UNICODE),
             ]);
 
             // تحديث بروفايل المرشح بالبيانات المستخرجة والـ Confidence
@@ -51,7 +51,7 @@ class CvExtractionService extends BaseAiService
             return [
                 'profile' => $profile,
                 'confidence' => $response['confidence'],
-                'evidence' => $output['evidence'] ?? []
+                'evidence' => $output['evidence'] ?? [],
             ];
         });
     }

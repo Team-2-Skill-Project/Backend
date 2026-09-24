@@ -2,9 +2,9 @@
 
 namespace App\Services\Ai;
 
-use App\Models\User;
 use App\Models\MentorChat;
 use App\Models\MentorMessage;
+use App\Models\User;
 use Illuminate\Validation\ValidationException;
 
 class AiMentorService extends BaseAiService
@@ -17,9 +17,9 @@ class AiMentorService extends BaseAiService
         $profile = $user->candidateProfile;
 
         // Fallback لو بيانات الـ Profile أو الـ CV ناقصة تماماً
-        if (!$profile || !$profile->target_role) {
+        if (! $profile || ! $profile->target_role) {
             throw ValidationException::withMessages([
-                'context' => __('ai.missing_profile_context') ?: 'عذراً، يجيب إكمال الملف المهني وتحديد الوظيفة المستهدفة أولاً لكي يستطيع المرشد مساعدتك بدقة.'
+                'context' => __('ai.missing_profile_context') ?: 'عذراً، يجيب إكمال الملف المهني وتحديد الوظيفة المستهدفة أولاً لكي يستطيع المرشد مساعدتك بدقة.',
             ]);
         }
 
@@ -68,7 +68,7 @@ class AiMentorService extends BaseAiService
             'chat_id' => $chat->id,
             'answer' => $output['answer'],
             'actions' => $output['actions'] ?? [],
-            'confidence' => $response['confidence']
+            'confidence' => $response['confidence'],
         ];
     }
 }

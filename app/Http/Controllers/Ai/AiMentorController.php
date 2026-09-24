@@ -34,7 +34,7 @@ class AiMentorController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $response
+            'data' => $response,
         ]);
     }
 }

@@ -24,10 +24,10 @@ class JobMatchController extends Controller
         $user = $request->user();
         $profile = $user->candidateProfile;
 
-        if (!$profile) {
+        if (! $profile) {
             return response()->json([
                 'success' => false,
-                'message' => 'يجب إكمال الملف المهني أولاً.'
+                'message' => 'يجب إكمال الملف المهني أولاً.',
             ], 422);
         }
 
@@ -36,7 +36,7 @@ class JobMatchController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $matchResult
+            'data' => $matchResult,
         ]);
     }
 }

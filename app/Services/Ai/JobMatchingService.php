@@ -19,7 +19,7 @@ class JobMatchingService extends BaseAiService
             'preferences' => [
                 'work_mode' => $profile->preferred_work_mode,
                 'location' => $profile->location,
-            ]
+            ],
         ];
 
         $response = $this->sendRequest('jobs/match', $payload);

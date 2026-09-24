@@ -8,8 +8,8 @@ use App\Http\Requests\Cv\VerifyCvExtractionRequest;
 use App\Http\Resources\CvDocumentResource;
 use App\Models\CvDocument;
 use App\Models\CvExtraction;
-use App\Services\CvService;
-use App\Services\Ai\CvExtractionService; // استدعاء خدمة الذكاء الاصطناعي
+use App\Services\Ai\CvExtractionService;
+use App\Services\CvService; // استدعاء خدمة الذكاء الاصطناعي
 use App\Traits\ApiResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -58,6 +58,7 @@ class CvController extends Controller
             ->response()
             ->setStatusCode(201);
     }
+
     /**
      * Display the specified CV document along with its extractions.
      */
@@ -76,7 +77,7 @@ class CvController extends Controller
     {
         $profile = $request->user()->candidateProfile;
 
-        if (!$profile) {
+        if (! $profile) {
             return $this->errorResponse('cv.profile_not_found', 404);
         }
 
@@ -119,7 +120,7 @@ class CvController extends Controller
     {
         $profile = $request->user()->candidateProfile;
 
-        if (!$profile) {
+        if (! $profile) {
             return $this->errorResponse('cv.profile_not_found', 404);
         }
 

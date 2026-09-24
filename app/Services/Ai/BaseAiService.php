@@ -9,6 +9,7 @@ use Illuminate\Validation\ValidationException;
 class BaseAiService
 {
     protected string $aiEndpoint;
+
     protected string $apiKey;
 
     public function __construct()
@@ -31,13 +32,13 @@ class BaseAiService
                         'timestamp' => now()->toIso8601String(),
                         'environment' => config('app.env'),
                     ],
-                    'payload' => $payload
+                    'payload' => $payload,
                 ]);
 
             if ($response->failed()) {
-                Log::error("AI Service Error [{$endpoint}]: " . $response->body());
+                Log::error("AI Service Error [{$endpoint}]: ".$response->body());
                 throw ValidationException::withMessages([
-                    'ai' => __('ai.service_error') ?: 'حدث خطأ أثناء معالجة الذكاء الاصطناعي، يجيب المحاولة لاحقاً.'
+                    'ai' => __('ai.service_error') ?: 'حدث خطأ أثناء معالجة الذكاء الاصطناعي، يجيب المحاولة لاحقاً.',
                 ]);
             }
 
@@ -52,9 +53,9 @@ class BaseAiService
             ];
 
         } catch (\Exception $e) {
-            Log::error("AI Connection Exception: " . $e->getMessage());
+            Log::error('AI Connection Exception: '.$e->getMessage());
             throw ValidationException::withMessages([
-                'ai' => __('ai.connection_failed') ?: 'تعذر الاتصال بخدمة الذكاء الاصطناعي.'
+                'ai' => __('ai.connection_failed') ?: 'تعذر الاتصال بخدمة الذكاء الاصطناعي.',
             ]);
         }
     }

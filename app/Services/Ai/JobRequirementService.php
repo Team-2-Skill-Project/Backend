@@ -3,8 +3,8 @@
 namespace App\Services\Ai;
 
 use App\Models\JobPost;
-use App\Models\Skill;
 use App\Models\JobSkill;
+use App\Models\Skill;
 
 class JobRequirementService extends BaseAiService
 {
@@ -31,7 +31,7 @@ class JobRequirementService extends BaseAiService
                 ['job_id' => $job->id, 'skill_id' => $skill->id],
                 [
                     'type' => $reqSkill['type'], // required أو preferred
-                    'confidence_score' => $reqSkill['confidence'] ?? 1.0
+                    'confidence_score' => $reqSkill['confidence'] ?? 1.0,
                 ]
             );
         }

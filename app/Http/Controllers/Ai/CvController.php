@@ -44,7 +44,7 @@ class CvController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('application.cv_extracted_successfully') ?: 'تم رفع وتحليل السيرة الذاتية بنجاح.',
-            'data' => $result
+            'data' => $result,
         ]);
     }
 }
