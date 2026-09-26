@@ -46,7 +46,7 @@ class SkillTaxonomyService
                 return $record;
             }, 3);
         } catch (UniqueConstraintViolationException) {
-            throw ValidationException::withMessages(['name' => 'This skill name is already in use.']);
+            throw ValidationException::withMessages(['name' => __('skill.validation.name_taken')]);
         }
     }
 
@@ -70,7 +70,7 @@ class SkillTaxonomyService
                 return $record;
             }, 3);
         } catch (UniqueConstraintViolationException) {
-            throw ValidationException::withMessages(['alias' => 'This skill alias is already in use.']);
+            throw ValidationException::withMessages(['alias' => __('skill.validation.alias_taken')]);
         }
     }
 
@@ -78,7 +78,7 @@ class SkillTaxonomyService
     public function mergeSkill(Skill $source, Skill $target): array
     {
         if ($source->id === $target->id) {
-            throw ValidationException::withMessages(['target_skill_id' => 'Choose a different target skill.']);
+            throw ValidationException::withMessages(['target_skill_id' => __('skill.validation.different_target')]);
         }
 
         try {
@@ -88,7 +88,7 @@ class SkillTaxonomyService
                 $target = $skills->get($target->id);
 
                 if (! $source || ! $target) {
-                    throw ValidationException::withMessages(['target_skill_id' => 'The source or target skill no longer exists.']);
+                    throw ValidationException::withMessages(['target_skill_id' => __('skill.validation.merge_subject_missing')]);
                 }
 
                 $ids = [$source->id, $target->id];
@@ -173,7 +173,7 @@ class SkillTaxonomyService
                 return ['skill' => $target, 'meta' => $meta];
             }, 3);
         } catch (UniqueConstraintViolationException) {
-            throw ValidationException::withMessages(['target_skill_id' => 'The taxonomy changed during this merge. Retry after resolving conflicting names or links.']);
+            throw ValidationException::withMessages(['target_skill_id' => __('skill.validation.merge_conflict')]);
         }
     }
 
@@ -232,7 +232,7 @@ class SkillTaxonomyService
         if (($canonical && $canonical->id !== $skillId && $canonical->id !== $mergingSourceId)
             || ($alias && ($forAlias ? $alias->id !== $aliasId : $alias->skill_id !== $skillId))) {
             throw ValidationException::withMessages([
-                $forAlias ? 'alias' : 'name' => 'This name is already used by a canonical skill or alias.',
+                $forAlias ? 'alias' : 'name' => __('skill.validation.name_unavailable'),
             ]);
         }
     }

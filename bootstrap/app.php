@@ -58,6 +58,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['message' => __('saved_job.forbidden')], 403);
             }
 
+            if ($request->is('api/candidate/skills', 'api/candidate/skills/*', 'api/skills/search', 'api/admin/skills', 'api/admin/skills/*')) {
+                return response()->json(['message' => __('skill.forbidden')], 403);
+            }
+
             return null;
         });
 
@@ -76,6 +80,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
             if ($request->is('api/saved-jobs', 'api/saved-jobs/*', 'api/jobs/*/save')) {
                 return response()->json(['message' => __('saved_job.not_found')], 404);
+            }
+
+            if ($request->is('api/candidate/skills', 'api/candidate/skills/*', 'api/skills/search', 'api/admin/skills', 'api/admin/skills/*')) {
+                return response()->json(['message' => __('skill.not_found')], 404);
             }
 
             return null;
