@@ -34,6 +34,12 @@ class SetLocale
             }
         }
 
+        $queryLocale = strtolower((string) $request->query('lang', ''));
+
+        if (in_array($queryLocale, self::SUPPORTED_LOCALES, true)) {
+            return $queryLocale;
+        }
+
         return (string) config('app.fallback_locale', 'en');
     }
 }

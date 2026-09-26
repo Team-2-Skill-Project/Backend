@@ -25,4 +25,9 @@ return [
         'experiences.*.end_date' => 'تاريخ انتهاء الخبرة',
         'experiences.*.description' => 'وصف الخبرة',
     ],
+    // Compatibility aliases for keys introduced upstream.
+    'profile_not_found' => 'لم يتم العثور على ملف المرشح.',
+    'uploaded_success' => 'تم رفع السيرة الذاتية بنجاح وهي قيد المعالجة.',
+    'retried_success' => 'تم إعادة محاولة معالجة السيرة الذاتية بنجاح.',
+    'verified_success' => 'تم التحقق من البيانات المستخرجة ومزامنتها مع البروفايل بنجاح.',
 ];

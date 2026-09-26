@@ -27,7 +27,7 @@ class CvController extends Controller
         $profile = $request->user()->candidateProfile;
 
         if (! $profile) {
-            return $this->errorResponse(__('cv.candidate_profile_not_found'), 404);
+            return $this->errorResponse('cv.candidate_profile_not_found', 404);
         }
 
         $cvDocument = $this->cvService->uploadOrReplaceCv($profile, $request->file('cv'));
@@ -48,7 +48,6 @@ class CvController extends Controller
     public function show(Request $request, CvDocument $cvDocument)
     {
         $this->authorize('view', $cvDocument);
-
         $cvDocument->load('extractions');
 
         return new CvDocumentResource($cvDocument);
@@ -94,6 +93,6 @@ class CvController extends Controller
 
         $this->cvService->verifyAndSyncExtractedData($profile, $extraction, $request->validated());
 
-        return $this->successResponse(null, __('cv.extraction_verified'));
+        return $this->successResponse(null, 'cv.extraction_verified');
     }
 }

@@ -30,11 +30,12 @@ class StoreJobApplicationRequest extends FormRequest
         ];
     }
 
+    /** @return array<string, string> */
     public function messages(): array
     {
         return [
-            'job_id.unique' => 'You have already applied for this job; you cannot apply twice.',
-            'job_id.exists' => 'The requested job does not exist.',
+            'job_id.unique' => __('application.validation.already_applied'),
+            'job_id.exists' => __('application.validation.job_not_found'),
         ];
     }
 }
