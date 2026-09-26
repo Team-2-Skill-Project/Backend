@@ -50,6 +50,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['message' => __('cv.forbidden')], 403);
             }
 
+            if ($request->is('api/applications', 'api/applications/*')) {
+                return response()->json(['message' => __('application.unauthorized_action')], 403);
+            }
+
             return null;
         });
 
@@ -60,6 +64,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
             if ($request->is('api/cv/status/*') || $request->is('api/cv/retry/*')) {
                 return response()->json(['message' => __('cv.document_not_found')], 404);
+            }
+
+            if ($request->is('api/applications', 'api/applications/*')) {
+                return response()->json(['message' => __('application.not_found')], 404);
             }
 
             return null;

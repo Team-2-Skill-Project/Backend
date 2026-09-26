@@ -122,7 +122,7 @@ class JobApplicationController extends Controller
         $updatedApplication = $this->applicationService->updateStatus(
             $application,
             'withdrawn',
-            'The candidate withdrew the application.'
+            __('application.history_withdrawn')
         );
 
         $updatedApplication->load(['job.company', 'candidateProfile.user', 'histories']);

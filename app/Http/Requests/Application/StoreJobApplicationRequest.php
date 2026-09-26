@@ -38,4 +38,10 @@ class StoreJobApplicationRequest extends FormRequest
             'job_id.exists' => __('application.validation.job_not_found'),
         ];
     }
+
+    /** @return array<string, string> */
+    public function attributes(): array
+    {
+        return trans('application.attributes');
+    }
 }
