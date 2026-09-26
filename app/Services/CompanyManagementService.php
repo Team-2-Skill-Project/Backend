@@ -45,7 +45,7 @@ class CompanyManagementService
                 return $record;
             }, 3);
         } catch (UniqueConstraintViolationException) {
-            throw ValidationException::withMessages(['name' => 'This company name is already in use.']);
+            throw ValidationException::withMessages(['name' => __('company.validation.name_taken')]);
         }
     }
 
@@ -64,7 +64,7 @@ class CompanyManagementService
                 $target = $companies->get($target->id);
 
                 if (! $source || ! $target) {
-                    throw ValidationException::withMessages(['target_company_id' => 'The source or target company no longer exists.']);
+                    throw ValidationException::withMessages(['target_company_id' => __('company.validation.merge_subject_missing')]);
                 }
 
                 $sourceAliases = CompanyAlias::query()
@@ -142,7 +142,7 @@ class CompanyManagementService
                 ];
             }, 3);
         } catch (UniqueConstraintViolationException) {
-            throw ValidationException::withMessages(['target_company_id' => 'The company merge encountered a conflicting company or alias.']);
+            throw ValidationException::withMessages(['target_company_id' => __('company.validation.merge_conflict')]);
         }
     }
 
@@ -160,7 +160,7 @@ class CompanyManagementService
             ->first();
 
         if ($canonical || $alias) {
-            throw ValidationException::withMessages(['name' => 'This company name is already used by a company or alias.']);
+            throw ValidationException::withMessages(['name' => __('company.validation.name_unavailable')]);
         }
     }
 
@@ -178,7 +178,7 @@ class CompanyManagementService
             ->first();
 
         if ($canonical || ($alias && $alias->company_id !== $targetCompanyId)) {
-            throw ValidationException::withMessages(['target_company_id' => 'A company name or alias conflicts with another company.']);
+            throw ValidationException::withMessages(['target_company_id' => __('company.validation.merge_alias_conflict')]);
         }
     }
 }

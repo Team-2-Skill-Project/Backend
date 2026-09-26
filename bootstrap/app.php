@@ -62,6 +62,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['message' => __('skill.forbidden')], 403);
             }
 
+            if ($request->is('api/admin/companies', 'api/admin/companies/*')) {
+                return response()->json(['message' => __('company.forbidden')], 403);
+            }
+
             return null;
         });
 
@@ -84,6 +88,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
             if ($request->is('api/candidate/skills', 'api/candidate/skills/*', 'api/skills/search', 'api/admin/skills', 'api/admin/skills/*')) {
                 return response()->json(['message' => __('skill.not_found')], 404);
+            }
+
+            if ($request->is('api/admin/companies', 'api/admin/companies/*')) {
+                return response()->json(['message' => __('company.not_found')], 404);
             }
 
             return null;
