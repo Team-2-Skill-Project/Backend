@@ -54,6 +54,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['message' => __('application.unauthorized_action')], 403);
             }
 
+            if ($request->is('api/saved-jobs', 'api/saved-jobs/*', 'api/jobs/*/save')) {
+                return response()->json(['message' => __('saved_job.forbidden')], 403);
+            }
+
             return null;
         });
 
@@ -68,6 +72,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
             if ($request->is('api/applications', 'api/applications/*')) {
                 return response()->json(['message' => __('application.not_found')], 404);
+            }
+
+            if ($request->is('api/saved-jobs', 'api/saved-jobs/*', 'api/jobs/*/save')) {
+                return response()->json(['message' => __('saved_job.not_found')], 404);
             }
 
             return null;
