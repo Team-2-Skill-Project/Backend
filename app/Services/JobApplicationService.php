@@ -38,7 +38,7 @@ class JobApplicationService
                 'changed_by' => auth()->id(),
                 'old_status' => null,
                 'new_status' => ApplicationStatus::APPLIED->value,
-                'notes' => __('application.history_created', [], app()->getLocale()) ?? 'Created new application with status applied.'
+                'notes' => __('application.history_created'),
             ]);
 
             return $application;
@@ -59,8 +59,8 @@ class JobApplicationService
             throw ValidationException::withMessages([
                 'status' => __('application.invalid_transition', [
                     'from' => $currentStatusValue,
-                    'to' => $newStatus
-                ]) ?: "It is not possible to transition from the state ({$currentStatusValue}) To state ({$newStatus}).",
+                    'to' => $newStatus,
+                ]),
             ]);
         }
 
@@ -75,7 +75,7 @@ class JobApplicationService
                 'changed_by' => auth()->id(),
                 'old_status' => $currentStatusValue,
                 'new_status' => $newStatus,
-                'notes' => $notes ?? __('application.history_updated') ?? 'The status has been updated.',
+                'notes' => $notes ?? __('application.history_updated'),
             ]);
 
             return $application;

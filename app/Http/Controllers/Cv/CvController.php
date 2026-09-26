@@ -27,7 +27,7 @@ class CvController extends Controller
         $profile = $request->user()->candidateProfile;
 
         if (! $profile) {
-            return $this->errorResponse('cv.profile_not_found', 404);
+            return $this->errorResponse('cv.candidate_profile_not_found', 404);
         }
 
         $cvDocument = $this->cvService->uploadOrReplaceCv($profile, $request->file('cv'));
@@ -36,7 +36,7 @@ class CvController extends Controller
         return (new CvDocumentResource($cvDocument))
             ->additional([
                 'status' => 'success',
-                'message' => __('cv.uploaded_success'),
+                'message' => __('cv.uploaded'),
             ])
             ->response()
             ->setStatusCode(201);
@@ -80,7 +80,7 @@ class CvController extends Controller
         return (new CvDocumentResource($updatedCv))
             ->additional([
                 'status' => 'success',
-                'message' => __('cv.retried_success'),
+                'message' => __('cv.processing_retried'),
             ]);
     }
 
@@ -93,6 +93,6 @@ class CvController extends Controller
 
         $this->cvService->verifyAndSyncExtractedData($profile, $extraction, $request->validated());
 
-        return $this->successResponse(null, 'cv.verified_success');
+        return $this->successResponse(null, 'cv.extraction_verified');
     }
 }

@@ -87,7 +87,7 @@ class JobApplicationController extends Controller
         $user = $request->user();
 
         if ($user->role === 'candidate' && $application->candidate_profile_id !== $user->candidateProfile?->id) {
-            return $this->errorResponse(__('application.unauthorized'), 403);
+            return $this->errorResponse('application.unauthorized', 403);
         }
 
         $request->validate([
@@ -116,13 +116,13 @@ class JobApplicationController extends Controller
     public function withdraw(Application $application)
     {
         if ($application->candidate_profile_id !== auth()->user()->candidateProfile->id) {
-            return $this->errorResponse(__('application.unauthorized_action'), 403);
+            return $this->errorResponse('application.unauthorized_action', 403);
         }
 
         $updatedApplication = $this->applicationService->updateStatus(
             $application,
             'withdrawn',
-            'The candidate withdrew the application.'
+            __('application.history_withdrawn')
         );
 
         $updatedApplication->load(['job.company', 'candidateProfile.user', 'histories']);
