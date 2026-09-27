@@ -18,6 +18,9 @@ use App\Http\Controllers\Candidate\ProfileController;
 use App\Http\Controllers\Candidate\ProjectController;
 use App\Http\Controllers\JobFeedController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\RoadmapController;
+use App\Http\Controllers\RoadmapRefreshController;
+use App\Http\Controllers\RoadmapTaskController;
 use App\Http\Controllers\SavedJobController;
 use App\Http\Controllers\SkillSearchController;
 use App\Http\Middleware\EnsureActiveAdmin;
@@ -86,6 +89,10 @@ Route::middleware(['auth:api', EnsureActiveCandidate::class])->group(function ()
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
     Route::patch('/notifications/read-all', [NotificationController::class, 'markAllRead']);
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead']);
+    Route::post('/roadmaps', [RoadmapController::class, 'store'])->middleware('throttle:5,1');
+    Route::get('/roadmaps/{roadmap}', [RoadmapController::class, 'show']);
+    Route::post('/roadmaps/{roadmap}/refresh', RoadmapRefreshController::class)->middleware('throttle:5,1');
+    Route::patch('/roadmap-tasks/{roadmapTask}/complete', [RoadmapTaskController::class, 'complete']);
 });
 
 Route::middleware(['auth:api', EnsureActiveAdmin::class])->group(function (): void {
