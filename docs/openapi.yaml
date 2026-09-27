@@ -3528,7 +3528,7 @@ paths:
             operationId: applicationShow
             tags: [Applications]
             summary: Get one application
-            description: JWT. Loads job company, status history and candidate user.
+            description: JWT. Loads job company, status history and candidate user. Candidates can only view their own applications (else 403).
             security:
                 - bearerAuth: []
             parameters:
@@ -3575,6 +3575,8 @@ paths:
                                                         format: date-time
                 '401':
                     $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
                 '404':
                     description: Application not found.
                     content:

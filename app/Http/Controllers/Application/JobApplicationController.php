@@ -74,8 +74,14 @@ class JobApplicationController extends Controller
     /**
      * Show the details of a specific job application.
      */
-    public function show(Application $application): ApplicationResource
+    public function show(Request $request, Application $application): ApplicationResource|JsonResponse
     {
+        $user = $request->user();
+
+        if ($user->role === 'candidate' && $application->candidate_profile_id !== $user->candidateProfile?->id) {
+            return $this->errorResponse('application.unauthorized', 403);
+        }
+
         $application->load(['job.company', 'histories.changer', 'candidateProfile.user']);
 
         return new ApplicationResource($application);
