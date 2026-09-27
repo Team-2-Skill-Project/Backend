@@ -10,6 +10,7 @@ use Illuminate\Validation\ValidationException;
 
 class JobApplicationService
 {
+    /** @var array<string, list<string>> */
     protected array $allowedTransitions = [
         'applied' => ['in_review', 'withdrawn', 'rejected'],
         'in_review' => ['interview', 'rejected', 'offer', 'withdrawn'],
@@ -21,8 +22,10 @@ class JobApplicationService
 
     /**
      * Create a new job application and log the initial status in the history table.
+     *
+     * @param  array<string, mixed>  $data
      */
-    public function createApplication($candidateProfileId, array $data): Application
+    public function createApplication(int $candidateProfileId, array $data): Application
     {
         return DB::transaction(function () use ($candidateProfileId, $data) {
             $application = Application::create([
@@ -50,9 +53,7 @@ class JobApplicationService
      */
     public function updateStatus(Application $application, string $newStatus, ?string $notes = null): Application
     {
-        $currentStatusValue = $application->status instanceof ApplicationStatus
-            ? $application->status->value
-            : (string) $application->status;
+        $currentStatusValue = $application->status->value;
 
         // Check if the transition is allowed
         if (! in_array($newStatus, $this->allowedTransitions[$currentStatusValue] ?? [])) {

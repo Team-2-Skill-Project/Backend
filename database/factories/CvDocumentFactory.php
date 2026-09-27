@@ -4,8 +4,10 @@ namespace Database\Factories;
 
 use App\Enums\CvParsingStatus;
 use App\Models\CandidateProfile;
+use App\Models\CvDocument;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/** @extends Factory<CvDocument> */
 class CvDocumentFactory extends Factory
 {
     public function definition(): array

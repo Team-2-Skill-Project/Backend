@@ -9,7 +9,7 @@ class CvDocumentResource extends JsonApiResource
     /**
      * The resource's attributes.
      *
-     * @var array|string
+     * @var list<string>
      */
     public array $attributes = [
         'original_filename',
@@ -30,7 +30,7 @@ class CvDocumentResource extends JsonApiResource
     /**
      * The resource's relationships.
      *
-     * @var array|string
+     * @var list<string>
      */
     public array $relationships = [
         'candidateProfile',

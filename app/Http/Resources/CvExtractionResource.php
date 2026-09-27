@@ -8,6 +8,8 @@ class CvExtractionResource extends JsonApiResource
 {
     /**
      * The resource's attributes.
+     *
+     * @var list<string>
      */
     public $attributes = [
         'attempt_number',
@@ -26,6 +28,8 @@ class CvExtractionResource extends JsonApiResource
 
     /**
      * The resource's relationships.
+     *
+     * @var list<string>
      */
     public $relationships = [
         'cvDocument',
