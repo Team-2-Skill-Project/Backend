@@ -9,7 +9,7 @@ class ApplicationStatusHistoryResource extends JsonApiResource
     /**
      * The resource's attributes.
      *
-     * @var array|string
+     * @var list<string>
      */
     public array $attributes = [
         'old_status',
@@ -21,7 +21,7 @@ class ApplicationStatusHistoryResource extends JsonApiResource
     /**
      * The resource's relationships.
      *
-     * @var array|string
+     * @var list<string>
      */
     public array $relationships = [
         'application',

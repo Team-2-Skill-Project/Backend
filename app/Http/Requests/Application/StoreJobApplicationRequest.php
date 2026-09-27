@@ -10,10 +10,9 @@ class StoreJobApplicationRequest extends FormRequest
     public function authorize(): bool
     {
         return $this->user() && $this->user()->candidateProfile !== null;
-
-        return true;
     }
 
+    /** @return array<string, array<int, string|Rule|\Closure>> */
     public function rules(): array
     {
         $candidateProfileId = optional($this->user()->candidateProfile)->id;
@@ -28,5 +27,20 @@ class StoreJobApplicationRequest extends FormRequest
             ],
             'cover_letter' => ['nullable', 'string', 'max:2000'],
         ];
+    }
+
+    /** @return array<string, string> */
+    public function messages(): array
+    {
+        return [
+            'job_id.unique' => __('application.validation.already_applied'),
+            'job_id.exists' => __('application.validation.job_not_found'),
+        ];
+    }
+
+    /** @return array<string, string> */
+    public function attributes(): array
+    {
+        return trans('application.attributes');
     }
 }

@@ -8,6 +8,8 @@ class ApplicationResource extends JsonApiResource
 {
     /**
      * The resource's attributes.
+     *
+     * @var list<string>
      */
     public $attributes = [
         'status',
@@ -19,6 +21,8 @@ class ApplicationResource extends JsonApiResource
 
     /**
      * The resource's relationships.
+     *
+     * @var list<string>
      */
     public $relationships = [
         'job',

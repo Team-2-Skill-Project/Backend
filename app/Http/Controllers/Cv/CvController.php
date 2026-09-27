@@ -11,7 +11,9 @@ use App\Models\CvExtraction;
 use App\Services\CvService;
 use App\Traits\ApiResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CvController extends Controller
 {
@@ -22,12 +24,12 @@ class CvController extends Controller
     /**
      * Upload a new CV document for the authenticated user, replacing any existing CV.
      */
-    public function store(UploadCvRequest $request)
+    public function store(UploadCvRequest $request): JsonResponse
     {
         $profile = $request->user()->candidateProfile;
 
         if (! $profile) {
-            return $this->errorResponse('cv.profile_not_found', 404);
+            return $this->errorResponse('cv.candidate_profile_not_found', 404);
         }
 
         $cvDocument = $this->cvService->uploadOrReplaceCv($profile, $request->file('cv'));
@@ -36,7 +38,7 @@ class CvController extends Controller
         return (new CvDocumentResource($cvDocument))
             ->additional([
                 'status' => 'success',
-                'message' => __('cv.uploaded_success'),
+                'message' => __('cv.uploaded'),
             ])
             ->response()
             ->setStatusCode(201);
@@ -45,7 +47,7 @@ class CvController extends Controller
     /**
      * Display the specified CV document along with its extractions.
      */
-    public function show(Request $request, CvDocument $cvDocument)
+    public function show(Request $request, CvDocument $cvDocument): CvDocumentResource
     {
         $this->authorize('view', $cvDocument);
         $cvDocument->load('extractions');
@@ -56,7 +58,7 @@ class CvController extends Controller
     /**
      * Display a listing of the CV documents for the authenticated user, ordered by version.
      */
-    public function history(Request $request)
+    public function history(Request $request): AnonymousResourceCollection
     {
         $profile = $request->user()->candidateProfile;
 
@@ -70,7 +72,7 @@ class CvController extends Controller
     /**
      * Retry processing a CV document that previously failed.
      */
-    public function retry(Request $request, CvDocument $cvDocument)
+    public function retry(Request $request, CvDocument $cvDocument): CvDocumentResource
     {
         $this->authorize('update', $cvDocument);
 
@@ -80,19 +82,19 @@ class CvController extends Controller
         return (new CvDocumentResource($updatedCv))
             ->additional([
                 'status' => 'success',
-                'message' => __('cv.retried_success'),
+                'message' => __('cv.processing_retried'),
             ]);
     }
 
     /**
      * Verify the extracted data from a CV extraction and sync it to the candidate profile.
      */
-    public function verify(VerifyCvExtractionRequest $request, CvExtraction $extraction)
+    public function verify(VerifyCvExtractionRequest $request, CvExtraction $extraction): JsonResponse
     {
         $profile = $request->user()->candidateProfile;
 
         $this->cvService->verifyAndSyncExtractedData($profile, $extraction, $request->validated());
 
-        return $this->successResponse(null, 'cv.verified_success');
+        return $this->successResponse(null, 'cv.extraction_verified');
     }
 }

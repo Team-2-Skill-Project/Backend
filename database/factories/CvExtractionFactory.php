@@ -4,8 +4,10 @@ namespace Database\Factories;
 
 use App\Enums\CvExtractionStatus;
 use App\Models\CvDocument;
+use App\Models\CvExtraction;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/** @extends Factory<CvExtraction> */
 class CvExtractionFactory extends Factory
 {
     public function definition(): array
