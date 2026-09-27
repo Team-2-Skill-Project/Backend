@@ -66,6 +66,18 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail, Passk
         return $this->hasMany(Notification::class);
     }
 
+    /** @return HasMany<AiReviewItem, $this> */
+    public function aiReviewItems(): HasMany
+    {
+        return $this->hasMany(AiReviewItem::class, 'reviewer_id');
+    }
+
+    /** @return HasMany<AiReviewAudit, $this> */
+    public function aiReviewAudits(): HasMany
+    {
+        return $this->hasMany(AiReviewAudit::class, 'reviewer_id');
+    }
+
     public function sendEmailVerificationNotification(): void
     {
         app(EmailOtpService::class)->send($this, EmailOtp::EMAIL_VERIFICATION);

@@ -70,6 +70,10 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (NotFoundHttpException $exception, Request $request): ?JsonResponse {
+            if ($request->is('api/admin/ai-review-items', 'api/admin/ai-review-items/*')) {
+                return response()->json(['message' => __('ai_review.not_found')], 404);
+            }
+
             if ($request->is('api/cv/extractions/*')) {
                 return response()->json(['message' => __('cv.extraction_not_found')], 404);
             }

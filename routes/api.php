@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\AiReviewDecisionController;
+use App\Http\Controllers\Admin\AiReviewItemController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\IngestionRunController;
 use App\Http\Controllers\Admin\JobPostController;
@@ -96,6 +98,11 @@ Route::middleware(['auth:api', EnsureActiveCandidate::class])->group(function ()
 });
 
 Route::middleware(['auth:api', EnsureActiveAdmin::class])->group(function (): void {
+    Route::get('/admin/ai-review-items', [AiReviewItemController::class, 'index']);
+    Route::get('/admin/ai-review-items/{aiReviewItem}', [AiReviewItemController::class, 'show']);
+    Route::post('/admin/ai-review-items/{aiReviewItem}/approve', [AiReviewDecisionController::class, 'approve']);
+    Route::post('/admin/ai-review-items/{aiReviewItem}/correct', [AiReviewDecisionController::class, 'correct']);
+    Route::post('/admin/ai-review-items/{aiReviewItem}/reject', [AiReviewDecisionController::class, 'reject']);
     Route::post('/admin/job-sources', [JobSourceController::class, 'store']);
     Route::get('/admin/job-sources', [JobSourceController::class, 'index']);
     Route::get('/admin/job-sources/{jobSource}/raw-jobs', [RawJobController::class, 'index']);
