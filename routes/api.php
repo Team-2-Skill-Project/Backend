@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AiReviewDecisionController;
 use App\Http\Controllers\Admin\AiReviewItemController;
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\IngestionRunController;
 use App\Http\Controllers\Admin\JobPostController;
@@ -98,6 +99,7 @@ Route::middleware(['auth:api', EnsureActiveCandidate::class])->group(function ()
 });
 
 Route::middleware(['auth:api', EnsureActiveAdmin::class])->group(function (): void {
+    Route::get('/admin/audit-logs', [AuditLogController::class, 'index']);
     Route::get('/admin/ai-review-items', [AiReviewItemController::class, 'index']);
     Route::get('/admin/ai-review-items/{aiReviewItem}', [AiReviewItemController::class, 'show']);
     Route::post('/admin/ai-review-items/{aiReviewItem}/approve', [AiReviewDecisionController::class, 'approve']);

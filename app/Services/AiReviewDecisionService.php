@@ -4,6 +4,9 @@ namespace App\Services;
 
 use App\Enums\AiReviewAction;
 use App\Enums\AiReviewStatus;
+use App\Enums\AuditAction;
+use App\Enums\AuditEntityType;
+use App\Enums\AuditSource;
 use App\Models\AiReviewItem;
 use App\Models\CvExtraction;
 use App\Models\User;
@@ -12,7 +15,7 @@ use Illuminate\Validation\ValidationException;
 
 class AiReviewDecisionService
 {
-    public function __construct(private CvExtractionReviewHandler $cvHandler) {}
+    public function __construct(private CvExtractionReviewHandler $cvHandler, private AuditService $audit) {}
 
     /** @param array<string, mixed> $data */
     public function approve(AiReviewItem $item, User $reviewer, array $data): AiReviewItem
@@ -72,6 +75,26 @@ class AiReviewDecisionService
                 'decision_reason' => $data['decision_reason'] ?? null,
                 'reviewer_notes' => $data['reviewer_notes'] ?? null,
             ]);
+
+            $this->audit->record(
+                match ($action) {
+                    AiReviewAction::APPROVED => AuditAction::AI_REVIEW_APPROVED,
+                    AiReviewAction::CORRECTED => AuditAction::AI_REVIEW_CORRECTED,
+                    AiReviewAction::REJECTED => AuditAction::AI_REVIEW_REJECTED,
+                },
+                AuditEntityType::AI_REVIEW_ITEM,
+                (int) $locked->getKey(),
+                AuditSource::AI_REVIEW,
+                $reviewer,
+                ['status' => AiReviewStatus::PENDING->value],
+                ['status' => $locked->status->value],
+                [
+                    'entity_type' => $locked->entity_type->value,
+                    'entity_id' => $locked->entity_id,
+                    'operation' => $locked->operation->value,
+                    'decision_reason' => $data['decision_reason'] ?? null,
+                ],
+            );
 
             return $locked->load(['reviewer:id,name', 'audits']);
         }, 3);

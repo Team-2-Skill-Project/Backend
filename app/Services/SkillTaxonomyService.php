@@ -2,11 +2,15 @@
 
 namespace App\Services;
 
+use App\Enums\AuditAction;
+use App\Enums\AuditEntityType;
+use App\Enums\AuditSource;
 use App\Models\CandidateSkill;
 use App\Models\JobSkill;
 use App\Models\RoadmapStep;
 use App\Models\Skill;
 use App\Models\SkillAlias;
+use App\Models\User;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -14,6 +18,8 @@ use Illuminate\Validation\ValidationException;
 
 class SkillTaxonomyService
 {
+    public function __construct(private AuditService $audit) {}
+
     public function resolve(string $name): ?Skill
     {
         $normalized = $this->normalize($name);
@@ -28,11 +34,14 @@ class SkillTaxonomyService
     }
 
     /** @param array{name?: string, skill_category_id?: int|null, category?: string|null} $data */
-    public function saveSkill(?Skill $skill, array $data): Skill
+    public function saveSkill(?Skill $skill, array $data, ?User $actor = null): Skill
     {
         try {
-            return DB::transaction(function () use ($skill, $data): Skill {
+            return DB::transaction(function () use ($skill, $data, $actor): Skill {
                 $record = $skill ? Skill::query()->lockForUpdate()->findOrFail($skill->id) : new Skill;
+
+                $isNew = ! $record->exists;
+                $before = $isNew ? null : $record->only(['name', 'category', 'skill_category_id']);
 
                 if (array_key_exists('name', $data)) {
                     $data['name'] = Str::trim($data['name']);
@@ -42,6 +51,17 @@ class SkillTaxonomyService
                 }
 
                 $record->fill($data)->save();
+                $record->refresh();
+
+                $this->audit->record(
+                    $isNew ? AuditAction::SKILL_CREATED : AuditAction::SKILL_UPDATED,
+                    AuditEntityType::SKILL,
+                    (int) $record->getKey(),
+                    AuditSource::ADMIN,
+                    $actor ?? $this->audit->currentActor(),
+                    $before,
+                    $record->only(['name', 'category', 'skill_category_id']),
+                );
 
                 return $record;
             }, 3);
@@ -51,12 +71,15 @@ class SkillTaxonomyService
     }
 
     /** @param array{alias?: string} $data */
-    public function saveAlias(Skill $skill, ?SkillAlias $alias, array $data): SkillAlias
+    public function saveAlias(Skill $skill, ?SkillAlias $alias, array $data, ?User $actor = null): SkillAlias
     {
         try {
-            return DB::transaction(function () use ($skill, $alias, $data): SkillAlias {
+            return DB::transaction(function () use ($skill, $alias, $data, $actor): SkillAlias {
                 $parent = Skill::query()->lockForUpdate()->findOrFail($skill->id);
                 $record = $alias ? $parent->aliases()->lockForUpdate()->findOrFail($alias->id) : new SkillAlias;
+
+                $isNew = ! $record->exists;
+                $before = $isNew ? null : $record->only(['alias']);
 
                 if (array_key_exists('alias', $data)) {
                     $data['alias'] = Str::trim($data['alias']);
@@ -66,6 +89,18 @@ class SkillTaxonomyService
                 $record->fill($data);
                 $record->skill()->associate($parent);
                 $record->save();
+                $record->refresh();
+
+                $this->audit->record(
+                    $isNew ? AuditAction::SKILL_ALIAS_CREATED : AuditAction::SKILL_ALIAS_UPDATED,
+                    AuditEntityType::SKILL,
+                    (int) $parent->getKey(),
+                    AuditSource::ADMIN,
+                    $actor ?? $this->audit->currentActor(),
+                    $before,
+                    $record->only(['alias']),
+                    ['alias_id' => (int) $record->getKey()],
+                );
 
                 return $record;
             }, 3);
@@ -74,15 +109,38 @@ class SkillTaxonomyService
         }
     }
 
+    public function deleteAlias(Skill $skill, SkillAlias $alias, ?User $actor = null): void
+    {
+        DB::transaction(function () use ($skill, $alias, $actor): void {
+            $parent = Skill::query()->lockForUpdate()->findOrFail($skill->id);
+            $record = $parent->aliases()->lockForUpdate()->findOrFail($alias->id);
+
+            $before = $record->only(['alias']);
+            $aliasId = (int) $record->getKey();
+            $record->delete();
+
+            $this->audit->record(
+                AuditAction::SKILL_ALIAS_DELETED,
+                AuditEntityType::SKILL,
+                (int) $parent->getKey(),
+                AuditSource::ADMIN,
+                $actor ?? $this->audit->currentActor(),
+                $before,
+                null,
+                ['alias_id' => $aliasId],
+            );
+        }, 3);
+    }
+
     /** @return array{skill: Skill, meta: array<string, int>} */
-    public function mergeSkill(Skill $source, Skill $target): array
+    public function mergeSkill(Skill $source, Skill $target, ?User $actor = null): array
     {
         if ($source->id === $target->id) {
             throw ValidationException::withMessages(['target_skill_id' => __('skill.validation.different_target')]);
         }
 
         try {
-            return DB::transaction(function () use ($source, $target): array {
+            return DB::transaction(function () use ($source, $target, $actor): array {
                 $skills = Skill::query()->whereIn('id', [$source->id, $target->id])->orderBy('id')->lockForUpdate()->get()->keyBy('id');
                 $source = $skills->get($source->id);
                 $target = $skills->get($target->id);
@@ -169,6 +227,17 @@ class SkillTaxonomyService
                 }
 
                 $source->delete();
+
+                $this->audit->record(
+                    AuditAction::SKILL_MERGED,
+                    AuditEntityType::SKILL,
+                    (int) $target->id,
+                    AuditSource::ADMIN,
+                    $actor ?? $this->audit->currentActor(),
+                    ['source_skill' => ['id' => $source->id, 'name' => $source->name]],
+                    ['target_skill' => ['id' => $target->id, 'name' => $target->name]],
+                    $meta,
+                );
 
                 return ['skill' => $target, 'meta' => $meta];
             }, 3);
