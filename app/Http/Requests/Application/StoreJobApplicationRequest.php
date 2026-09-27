@@ -10,10 +10,11 @@ class StoreJobApplicationRequest extends FormRequest
     public function authorize(): bool
     {
         return $this->user() && $this->user()->candidateProfile !== null;
-
-        return true;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function rules(): array
     {
         $candidateProfileId = optional($this->user()->candidateProfile)->id;

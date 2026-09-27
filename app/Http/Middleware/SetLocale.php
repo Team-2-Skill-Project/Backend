@@ -24,7 +24,7 @@ class SetLocale
         if ($locale && in_array($locale, ['ar', 'en'])) {
             App::setLocale($locale);
         } else {
-            App::setLocale(config('app.fallback_locale', 'en'));
+            App::setLocale($this->preferredLocale($request));
         }
 
         return $next($request);

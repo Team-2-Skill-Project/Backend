@@ -1,12 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use Database\Factories\MentorChatFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MentorChat extends Model
 {
+    /** @use HasFactory<MentorChatFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -15,17 +21,20 @@ class MentorChat extends Model
         'title',
     ];
 
-    public function user()
+    /** @return BelongsTo<User, $this> */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function job()
+    /** @return BelongsTo<JobPost, $this> */
+    public function job(): BelongsTo
     {
         return $this->belongsTo(JobPost::class, 'job_id');
     }
 
-    public function messages()
+    /** @return HasMany<MentorMessage, $this> */
+    public function messages(): HasMany
     {
         return $this->hasMany(MentorMessage::class);
     }

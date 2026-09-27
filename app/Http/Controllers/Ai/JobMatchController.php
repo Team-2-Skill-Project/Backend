@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Ai;
 use App\Http\Controllers\Controller;
 use App\Models\JobPost;
 use App\Services\Ai\JobMatchingService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class JobMatchController extends Controller
@@ -19,15 +20,15 @@ class JobMatchController extends Controller
     /**
      * عرض تقرير المطابقة وتحليل الفجوات لوظيفة محددة
      */
-    public function getMatchReport(Request $request, JobPost $job)
+    public function getMatchReport(Request $request, JobPost $job): JsonResponse
     {
         $user = $request->user();
         $profile = $user->candidateProfile;
 
-        if (!$profile) {
+        if (! $profile) {
             return response()->json([
                 'success' => false,
-                'message' => 'يجب إكمال الملف المهني أولاً.'
+                'message' => 'يجب إكمال الملف المهني أولاً.',
             ], 422);
         }
 
@@ -36,7 +37,7 @@ class JobMatchController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $matchResult
+            'data' => $matchResult,
         ]);
     }
 }

@@ -1,7 +1,8 @@
 <?php
-use App\Http\Controllers\Cv\CvController;
-use App\Http\Controllers\Ai\JobMatchController;
+
 use App\Http\Controllers\Ai\AiMentorController;
+use App\Http\Controllers\Ai\JobMatchController;
+use App\Http\Controllers\Cv\CvController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:api')->prefix('ai')->group(function () {
