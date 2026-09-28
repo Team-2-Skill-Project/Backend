@@ -9,7 +9,7 @@ use App\Models\JobPost;
 use App\Models\JobSkill;
 use App\Models\Roadmap;
 use App\Models\Skill;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 
 class RoadmapGenerationInputBuilder
