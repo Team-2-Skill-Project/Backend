@@ -146,7 +146,7 @@ class RoadmapGenerationInputBuilder
     }
 
     /**
-     * @param  Collection<int, Skill>  $jobSkills
+     * @param  Collection<covariant int, Skill>  $jobSkills
      * @return list<array<string, mixed>>
      */
     private function normalizeStoredGaps(mixed $storedGaps, string $kind, Collection $jobSkills): array
