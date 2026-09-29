@@ -1,0 +1,39 @@
+name: Sync to DevOps Monorepo
+
+on: 
+  push:
+    branches: [main]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout Backend
+        uses: actions/checkout@v4
+        with:
+          path: source 
+
+      - name: Checkout DevOps-Infrastructure
+        uses: actions/checkout@v4
+        with:
+          repository: Team-2-Skill-Project/DevOps-Infrastructure
+          token: ${{ secrets.DEVOPS_SYNC_TOKEN }}
+          path: devops
+      
+      - name: Sync Backend Files
+        run: |
+          mkdir -p devops/Backend
+          rsync -av --delete --exclude='.git' --exclude='.github' source/ devops/Backend/
+
+      - name: Commit & Push to DevOps
+        run: |
+          cd devops
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Backend/
+          if git diff --staged --quiet; then
+            echo "No changes to sync"
+          else 
+            git commit -m "sync(backend): update from commit ${{ github.sha }}" 
+            git push origin main
+          fi 
