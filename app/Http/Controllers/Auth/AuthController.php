@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\JWTGuard;
 
 class AuthController extends Controller
@@ -76,6 +77,32 @@ class AuthController extends Controller
             'email' => $user->email,
             'user' => $user,
         ], 201);
+    }
+
+    public function refresh(Request $request): JsonResponse
+    {
+        $token = $request->bearerToken();
+
+        if (! is_string($token) || $token === '') {
+            return response()->json(['message' => __('auth.invalid_credentials')], 401);
+        }
+
+        try {
+            /** @var JWTGuard $guard */
+            $guard = Auth::guard('api');
+            $newToken = $guard->setToken($token)->refresh();
+            /** @var User $user */
+            $user = $guard->setToken($newToken)->user();
+
+            return response()->json([
+                'access_token' => $newToken,
+                'token_type' => 'bearer',
+                'expires_in' => $guard->factory()->getTTL() * 60,
+                'user' => $user,
+            ]);
+        } catch (JWTException) {
+            return response()->json(['message' => __('auth.invalid_credentials')], 401);
+        }
     }
 
     public function verifyEmailOtp(Request $request): JsonResponse

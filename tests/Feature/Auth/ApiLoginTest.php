@@ -40,6 +40,21 @@ test('verified users receive a JWT with the configured lifetime without a web se
     $this->assertGuest('web');
 })->with(['one hour' => 60, 'fifteen minutes' => 15]);
 
+test('API refresh issues a new access token for an authenticated user', function () {
+    $user = User::factory()->create(['phone' => null]);
+    $token = Auth::guard('api')->login($user);
+
+    $this->withHeader('Authorization', 'Bearer '.$token)
+        ->postJson('/api/auth/refresh')
+        ->assertOk()
+        ->assertJsonStructure(['access_token', 'token_type', 'expires_in', 'user'])
+        ->assertJsonPath('token_type', 'bearer')
+        ->assertJsonPath('user.id', $user->id)
+        ->assertJsonPath('user.email', $user->email);
+
+    $this->assertGuest('web');
+});
+
 test('API login rejects invalid credentials with 401', function (string $email, string $password) {
     User::factory()->create(['email' => 'user@example.com']);
 

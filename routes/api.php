@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/auth/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
 Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:5,1,api-login:');
+Route::post('/auth/refresh', [AuthController::class, 'refresh']);
 Route::get('/auth/me', [AuthController::class, 'me'])->middleware('auth:api');
 Route::get('/candidate/profile', [ProfileController::class, 'show'])->middleware(['auth:api', EnsureActiveCandidate::class]);
 Route::patch('/candidate/profile', [ProfileController::class, 'update'])->middleware(['auth:api', EnsureActiveCandidate::class]);
