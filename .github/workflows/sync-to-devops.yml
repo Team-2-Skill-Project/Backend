@@ -23,7 +23,18 @@ jobs:
       - name: Sync Backend Files
         run: |
           mkdir -p devops/Backend
-          rsync -av --delete --exclude='.git' --exclude='.github' source/ devops/Backend/
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='Dockerfile*' \
+            --exclude='.dockerignore' \
+            source/ devops/Backend/
+          if [ -f source/Dockerfile ]; then
+            cp -a source/Dockerfile devops/Backend/
+          fi
+          if [ -f source/.dockerignore ]; then
+            cp -a source/.dockerignore devops/Backend/
+          fi
 
       - name: Commit & Push to DevOps
         run: |
