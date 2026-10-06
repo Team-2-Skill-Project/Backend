@@ -9,12 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     steps: 
       - name: Checkout Backend
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           path: source 
 
       - name: Checkout DevOps-Infrastructure
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: Team-2-Skill-Project/DevOps-Infrastructure
           token: ${{ secrets.DEVOPS_SYNC_TOKEN }}
