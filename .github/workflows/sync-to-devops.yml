@@ -4,17 +4,43 @@ on:
   push:
     branches: [main]
 
+permissions: {}
+
 jobs:
-  sync:
+  token-check:
+    if: ${{ github.event_name == 'push' && github.repository == 'Team-2-Skill-Project/Backend' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      configured: ${{ steps.check.outputs.configured }}
+    steps:
+      - name: Check whether the sync token is configured
+        id: check
+        env:
+          DEVOPS_SYNC_TOKEN: ${{ secrets.DEVOPS_SYNC_TOKEN }}
+        shell: bash
+        run: |
+          if [[ -n "$DEVOPS_SYNC_TOKEN" ]]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  sync:
+    needs: token-check
+    if: ${{ github.event_name == 'push' && github.repository == 'Team-2-Skill-Project/Backend' && github.ref == 'refs/heads/main' && needs.token-check.result == 'success' && needs.token-check.outputs.configured == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Backend
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           path: source
 
       - name: Checkout DevOps-Infrastructure
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: Team-2-Skill-Project/DevOps-Infrastructure
           token: ${{ secrets.DEVOPS_SYNC_TOKEN }}

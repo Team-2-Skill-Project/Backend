@@ -13,6 +13,32 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
+    env:
+      APP_ENV: testing
+      APP_DEBUG: 'false'
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: '5432'
+      DB_DATABASE: skillmatch_ci
+      DB_USERNAME: skillmatch_ci
+      DB_PASSWORD: skillmatch_ci_password
+      DB_URL: ''
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: skillmatch_ci
+          POSTGRES_USER: skillmatch_ci
+          POSTGRES_PASSWORD: skillmatch_ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U skillmatch_ci -d skillmatch_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -24,6 +50,7 @@ jobs:
         with:
           php-version: '8.5'
           tools: composer:v2
+          extensions: pgsql, pdo_pgsql
           coverage: none
 
       - name: Setup Node
