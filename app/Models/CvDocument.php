@@ -29,9 +29,7 @@ class CvDocument extends Model
         'failure_reason',
     ];
 
-    /**
-     * @return array{file_size: 'integer', version: 'integer', is_current: 'boolean', processed_at: 'datetime'}
-     */
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [

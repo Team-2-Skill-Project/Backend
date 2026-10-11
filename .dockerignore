@@ -1,13 +1,54 @@
 .git
 .github
+.gitignore
+.gitattributes
+
+# Environment files and credentials
 .env
 .env.*
+*.pem
+*.key
+auth.json
+
+# Dependencies and build output
 node_modules
-vendor
+/vendor/
+public/hot
+public/storage
+bootstrap/ssr
+
+# Runtime files
 storage/logs/*
 storage/framework/cache/*
 storage/framework/sessions/*
 storage/framework/views/*
+storage/pail/*
+!storage/logs/.gitignore
+!storage/framework/cache/.gitignore
+!storage/framework/sessions/.gitignore
+!storage/framework/views/.gitignore
+
+# Tests and local caches
 tests
 .phpunit.cache
 .phpunit.result.cache
+.phpstan.cache
+.pest.cache
+
+# Local tooling and editor files
+.idea
+.vscode
+.php-cs-fixer.cache
+.DS_Store
+Thumbs.db
+Homestead.json
+Homestead.yaml
+/.fleet
+/.nova
+/.zed
+/.claude
+/.cursor
+/.windsurf
+/.codex
+/.agents
+AGENTS.md

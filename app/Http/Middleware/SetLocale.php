@@ -27,7 +27,7 @@ class SetLocale
     private function preferredLocale(Request $request): string
     {
         foreach ($request->getLanguages() as $language) {
-            $locale = strtolower(explode('_', $language, 2)[0]);
+            $locale = strtolower(explode('_', str_replace('-', '_', $language), 2)[0]);
 
             if (in_array($locale, self::SUPPORTED_LOCALES, true)) {
                 return $locale;

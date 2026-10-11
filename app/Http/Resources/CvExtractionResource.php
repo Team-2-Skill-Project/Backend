@@ -11,7 +11,7 @@ class CvExtractionResource extends JsonApiResource
      *
      * @var list<string>
      */
-    public $attributes = [
+    public array $attributes = [
         'attempt_number',
         'status',
         'provider',
@@ -31,7 +31,7 @@ class CvExtractionResource extends JsonApiResource
      *
      * @var list<string>
      */
-    public $relationships = [
+    public array $relationships = [
         'cvDocument',
     ];
 }

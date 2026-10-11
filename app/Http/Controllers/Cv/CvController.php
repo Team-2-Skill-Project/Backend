@@ -62,9 +62,12 @@ class CvController extends Controller
     {
         $profile = $request->user()->candidateProfile;
 
-        $history = CvDocument::where('candidate_profile_id', $profile->id)
-            ->orderBy('version', 'desc')
-            ->get();
+        $history = $profile === null
+            ? collect()
+            : CvDocument::query()
+                ->where('candidate_profile_id', $profile->id)
+                ->orderByDesc('version')
+                ->get();
 
         return CvDocumentResource::collection($history);
     }

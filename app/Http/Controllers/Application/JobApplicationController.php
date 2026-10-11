@@ -29,10 +29,11 @@ class JobApplicationController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $user = $request->user();
+        $candidateProfileId = $user->candidateProfile?->id;
         $query = Application::query()->with(['job.company', 'candidateProfile.user', 'histories']);
 
-        if ($user->role === 'candidate' || $user->candidateProfile) {
-            $query->where('candidate_profile_id', $user->candidateProfile->id);
+        if (($user->role === 'candidate' || $candidateProfileId !== null) && $candidateProfileId !== null) {
+            $query->where('candidate_profile_id', $candidateProfileId);
         }
 
         if ($request->has('status')) {
@@ -123,7 +124,10 @@ class JobApplicationController extends Controller
      */
     public function withdraw(Application $application): ApplicationResource|JsonResponse
     {
-        if ($application->candidate_profile_id !== auth()->user()->candidateProfile->id) {
+        $user = auth()->user();
+        $candidateProfileId = $user?->candidateProfile?->id;
+
+        if ($application->candidate_profile_id !== $candidateProfileId) {
             return $this->errorResponse('application.unauthorized_action', 403);
         }
 

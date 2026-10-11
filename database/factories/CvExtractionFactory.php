@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Enums\CvExtractionStatus;
@@ -10,6 +12,10 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /** @extends Factory<CvExtraction> */
 class CvExtractionFactory extends Factory
 {
+    /** @var class-string<CvExtraction> */
+    protected $model = CvExtraction::class;
+
+    /** @return array<string, mixed> */
     public function definition(): array
     {
         return [

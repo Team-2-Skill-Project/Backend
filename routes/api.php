@@ -11,6 +11,9 @@ use App\Http\Controllers\Admin\RawJobController;
 use App\Http\Controllers\Admin\SkillAliasController;
 use App\Http\Controllers\Admin\SkillController;
 use App\Http\Controllers\Admin\SkillMergeController;
+use App\Http\Controllers\Ai\AiMentorController;
+use App\Http\Controllers\Ai\CvController as AiCvController;
+use App\Http\Controllers\Ai\JobMatchController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\EmailPasswordResetController;
 use App\Http\Controllers\Candidate\CandidateSkillController;
@@ -29,6 +32,7 @@ use App\Http\Controllers\SkillSearchController;
 use App\Http\Middleware\EnsureActiveAdmin;
 use App\Http\Middleware\EnsureActiveCandidate;
 use App\Http\Middleware\EnsureActiveUser;
+use App\Http\Middleware\SetLocale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -132,3 +136,9 @@ Route::post('/admin/skills/{sourceSkill}/merge', SkillMergeController::class)->m
 
 require __DIR__.'/cv.php';
 require __DIR__.'/applications.php';
+
+Route::middleware(['auth:api', SetLocale::class, EnsureActiveCandidate::class])->prefix('ai')->group(function (): void {
+    Route::post('/cv/upload', [AiCvController::class, 'uploadAndExtract']);
+    Route::get('/jobs/{job}/match-report', [JobMatchController::class, 'getMatchReport']);
+    Route::post('/mentor/ask', [AiMentorController::class, 'ask']);
+});

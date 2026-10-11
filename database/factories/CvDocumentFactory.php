@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Enums\CvParsingStatus;
@@ -10,6 +12,10 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /** @extends Factory<CvDocument> */
 class CvDocumentFactory extends Factory
 {
+    /** @var class-string<CvDocument> */
+    protected $model = CvDocument::class;
+
+    /** @return array<string, mixed> */
     public function definition(): array
     {
         return [

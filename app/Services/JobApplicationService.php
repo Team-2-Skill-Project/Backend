@@ -41,7 +41,6 @@ class JobApplicationService
                 'cover_letter' => $data['cover_letter'] ?? null,
             ]);
 
-            // add a new record to the ApplicationStatusHistory table
             ApplicationStatusHistory::create([
                 'application_id' => $application->id,
                 'changed_by' => auth()->id(),
@@ -73,8 +72,7 @@ class JobApplicationService
     {
         $currentStatusValue = $application->status->value;
 
-        // Check if the transition is allowed
-        if (! in_array($newStatus, $this->allowedTransitions[$currentStatusValue] ?? [])) {
+        if (! in_array($newStatus, $this->allowedTransitions[$currentStatusValue] ?? [], true)) {
             throw ValidationException::withMessages([
                 'status' => __('application.invalid_transition', [
                     'from' => $currentStatusValue,
@@ -88,7 +86,6 @@ class JobApplicationService
                 'status' => $newStatus,
             ]);
 
-            // add a new record to the ApplicationStatusHistory table
             ApplicationStatusHistory::create([
                 'application_id' => $application->id,
                 'changed_by' => auth()->id(),

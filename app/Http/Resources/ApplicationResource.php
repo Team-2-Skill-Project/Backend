@@ -11,7 +11,8 @@ class ApplicationResource extends JsonApiResource
      *
      * @var list<string>
      */
-    public $attributes = [
+    /** @var array<string> */
+    public array $attributes = [
         'status',
         'cover_letter',
         'applied_at',
@@ -24,7 +25,8 @@ class ApplicationResource extends JsonApiResource
      *
      * @var list<string>
      */
-    public $relationships = [
+    /** @var array<string> */
+    public array $relationships = [
         'job',
         'candidateProfile',
         'histories',

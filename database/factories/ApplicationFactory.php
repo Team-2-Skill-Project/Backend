@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Enums\ApplicationStatus;
@@ -11,6 +13,10 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /** @extends Factory<Application> */
 class ApplicationFactory extends Factory
 {
+    /** @var class-string<Application> */
+    protected $model = Application::class;
+
+    /** @return array<string, mixed> */
     public function definition(): array
     {
         return [

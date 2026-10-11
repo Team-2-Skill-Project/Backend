@@ -10,6 +10,7 @@ use App\Models\JobSkill;
 use App\Models\Roadmap;
 use App\Models\Skill;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 
 class RoadmapGenerationInputBuilder
@@ -49,6 +50,7 @@ class RoadmapGenerationInputBuilder
     {
         $currentCv = $profile->cvDocuments()->where('is_current', true)->latest('version')->first();
         $cvStatus = $currentCv?->getAttribute('status');
+        $processedAt = $currentCv?->getAttribute('processed_at');
 
         return [
             'profile' => [
@@ -81,7 +83,7 @@ class RoadmapGenerationInputBuilder
                 'id' => $currentCv->id,
                 'version' => $currentCv->version,
                 'status' => $cvStatus instanceof CvParsingStatus ? $cvStatus->value : (string) $cvStatus,
-                'processed_at' => $currentCv->processed_at?->toISOString(),
+                'processed_at' => $processedAt instanceof Carbon ? $processedAt->toISOString() : null,
             ],
             'roadmap_progress' => $roadmap === null ? 0.0 : (float) $roadmap->overall_progress,
         ];

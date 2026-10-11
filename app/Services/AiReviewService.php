@@ -50,7 +50,8 @@ class AiReviewService
 
     private function requiresReview(CvExtraction $extraction): bool
     {
-        if ($extraction->status !== CvExtractionStatus::SUCCESS || $extraction->confidence_score === null) {
+        if (! in_array($extraction->status, [CvExtractionStatus::SUCCESS, CvExtractionStatus::COMPLETED], true)
+            || $extraction->confidence_score === null) {
             return false;
         }
 
