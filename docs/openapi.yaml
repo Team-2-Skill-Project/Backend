@@ -312,7 +312,15 @@ components:
             enum: [pending, normalized, failed]
         RawJobDeduplicationMethod:
             type: string
-            enum: [existing_reference, same_source_external_id, exact_normalized_url, fingerprint_candidate, title_company_similarity, no_match]
+            enum:
+                [
+                    existing_reference,
+                    same_source_external_id,
+                    exact_normalized_url,
+                    fingerprint_candidate,
+                    title_company_similarity,
+                    no_match,
+                ]
         IngestionRunStatus:
             type: string
             enum: [running, succeeded, partial, failed]
@@ -6556,8 +6564,7 @@ paths:
                                                         type: array
                                                         maxItems: 20
                                                         nullable: true
-                                                        items:
-                                                            {}
+                                                        items: {}
                                         experiences:
                                             type: array
                                             maxItems: 100
