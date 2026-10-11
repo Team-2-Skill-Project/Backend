@@ -50,10 +50,15 @@ class BaseAiService
 
     private function throwClientException(AiServiceException $exception): never
     {
+        $messageKey = match ($exception->reason) {
+            AiServiceException::REASON_INVALID_RESPONSE => 'ai.invalid_response',
+            default => $exception->isClientError()
+                ? 'ai.service_error'
+                : 'ai.connection_failed',
+        };
+
         throw ValidationException::withMessages([
-            'ai' => $exception->isClientError()
-                ? __('ai.service_error')
-                : __('ai.connection_failed'),
+            'ai' => __($messageKey),
         ]);
     }
 }
