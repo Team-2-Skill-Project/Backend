@@ -19,15 +19,27 @@ function staticOtpRegistrationPayload(): array
 
 function enableStaticOtp(string $code = '123456'): void
 {
+    app()->detectEnvironment(fn (): string => 'staging');
+
     config()->set([
-        'app.env' => 'local',
+        'app.env' => 'staging',
         'otp.static_enabled' => true,
         'otp.static_code' => $code,
     ]);
 }
 
-test('static OTP verifies registration without sending email and remains single-use', function () {
-    $code = '246810';
+afterEach(function (): void {
+    app()->detectEnvironment(fn (): string => 'testing');
+
+    config()->set([
+        'app.env' => 'testing',
+        'otp.static_enabled' => false,
+        'otp.static_code' => null,
+    ]);
+});
+
+test('staging static OTP verifies registration without sending email and remains single-use', function () {
+    $code = '123456';
     enableStaticOtp($code);
     $this->freezeTime();
     Mail::fake();
@@ -200,6 +212,8 @@ test('production ignores static OTP mode and uses the normal email flow', functi
 });
 
 test('disabled static OTP mode keeps random email delivery as the default', function () {
+    app()->detectEnvironment(fn (): string => 'local');
+
     config()->set([
         'app.env' => 'local',
         'otp.static_enabled' => false,
@@ -214,3 +228,25 @@ test('disabled static OTP mode keeps random email delivery as the default', func
     expect($mail->code)->not->toBe('000000')
         ->and(Hash::check($mail->code, $otp->code_hash))->toBeTrue();
 });
+
+test('invalid or missing staging static OTP configuration keeps normal email delivery', function (?string $code) {
+    app()->detectEnvironment(fn (): string => 'staging');
+
+    config()->set([
+        'app.env' => 'staging',
+        'otp.static_enabled' => true,
+        'otp.static_code' => $code,
+    ]);
+    Mail::fake();
+
+    $this->postJson('/api/auth/register', staticOtpRegistrationPayload())->assertCreated();
+
+    $mail = Mail::sent(EmailOtpMail::class)->sole();
+    $otp = EmailOtp::sole();
+    expect($mail->code)->toMatch('/^[0-9]{6}$/')
+        ->and(Hash::check($mail->code, $otp->code_hash))->toBeTrue();
+})->with([
+    'too short' => '12345',
+    'non numeric' => 'abcdef',
+    'missing' => null,
+]);
