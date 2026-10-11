@@ -45,10 +45,14 @@ class AuthController extends Controller
             return response()->json(['message' => __('auth.email_not_verified')], 403);
         }
 
+        $accessToken = $guard->login($user);
+
         return response()->json([
-            'access_token' => $guard->login($user),
+            'access_token' => $accessToken,
+            'refresh_token' => $this->issueRefreshToken($user),
             'token_type' => 'bearer',
             'expires_in' => $guard->factory()->getTTL() * 60,
+            'refresh_expires_in' => $this->refreshTokenTtlMinutes() * 60,
             'user' => $user,
         ]);
     }
@@ -90,14 +94,34 @@ class AuthController extends Controller
         try {
             /** @var JWTGuard $guard */
             $guard = Auth::guard('api');
-            $newToken = $guard->setToken($token)->refresh();
+            $guard->setToken($token);
+
+            if ($guard->payload()->get('token_use') === 'refresh') {
+                $user = $guard->user();
+                $newAccessToken = $guard->refresh();
+                $newRefreshToken = $this->issueRefreshToken($user);
+
+                return response()->json([
+                    'access_token' => $newAccessToken,
+                    'refresh_token' => $newRefreshToken,
+                    'token_type' => 'bearer',
+                    'expires_in' => $guard->factory()->getTTL() * 60,
+                    'refresh_expires_in' => $this->refreshTokenTtlMinutes() * 60,
+                    'user' => $user,
+                ]);
+            }
+
+            $newAccessToken = $guard->refresh();
             /** @var User $user */
-            $user = $guard->setToken($newToken)->user();
+            $user = $guard->setToken($newAccessToken)->user();
+            $newRefreshToken = $this->issueRefreshToken($user);
 
             return response()->json([
-                'access_token' => $newToken,
+                'access_token' => $newAccessToken,
+                'refresh_token' => $newRefreshToken,
                 'token_type' => 'bearer',
                 'expires_in' => $guard->factory()->getTTL() * 60,
+                'refresh_expires_in' => $this->refreshTokenTtlMinutes() * 60,
                 'user' => $user,
             ]);
         } catch (JWTException) {
@@ -156,6 +180,26 @@ class AuthController extends Controller
         } catch (TransportExceptionInterface) {
             return response()->json(['message' => __('auth.email_code_failed')], 503);
         }
+    }
+
+    private function issueRefreshToken(User $user): string
+    {
+        /** @var JWTGuard $guard */
+        $guard = Auth::guard('api');
+        $currentTtl = $guard->factory()->getTTL();
+
+        $guard->claims(['token_use' => 'refresh'])->setTTL($this->refreshTokenTtlMinutes());
+
+        try {
+            return $guard->login($user);
+        } finally {
+            $guard->claims([])->setTTL($currentTtl);
+        }
+    }
+
+    private function refreshTokenTtlMinutes(): int
+    {
+        return max(1, (int) config('jwt.refresh_ttl', 20160));
     }
 
     private function invalidCode(): JsonResponse

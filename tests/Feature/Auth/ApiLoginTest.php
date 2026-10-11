@@ -40,17 +40,40 @@ test('verified users receive a JWT with the configured lifetime without a web se
     $this->assertGuest('web');
 })->with(['one hour' => 60, 'fifteen minutes' => 15]);
 
-test('API refresh issues a new access token for an authenticated user', function () {
+test('API login returns both access and refresh tokens and refresh rotates them', function () {
     $user = User::factory()->create(['phone' => null]);
-    $token = Auth::guard('api')->login($user);
 
-    $this->withHeader('Authorization', 'Bearer '.$token)
-        ->postJson('/api/auth/refresh')
-        ->assertOk()
-        ->assertJsonStructure(['access_token', 'token_type', 'expires_in', 'user'])
+    $loginResponse = $this->postJson('/api/auth/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $loginResponse->assertOk()
+        ->assertJsonStructure(['access_token', 'refresh_token', 'token_type', 'expires_in', 'user'])
         ->assertJsonPath('token_type', 'bearer')
         ->assertJsonPath('user.id', $user->id)
         ->assertJsonPath('user.email', $user->email);
+
+    $accessToken = $loginResponse->json('access_token');
+    $refreshToken = $loginResponse->json('refresh_token');
+
+    expect($accessToken)->not->toBeEmpty()
+        ->and($refreshToken)->not->toBeEmpty();
+
+    $refreshResponse = $this->withHeader('Authorization', 'Bearer '.$refreshToken)
+        ->postJson('/api/auth/refresh');
+
+    $refreshResponse->assertOk()
+        ->assertJsonStructure(['access_token', 'refresh_token', 'token_type', 'expires_in', 'user'])
+        ->assertJsonPath('token_type', 'bearer')
+        ->assertJsonPath('user.id', $user->id)
+        ->assertJsonPath('user.email', $user->email);
+
+    $newAccessToken = $refreshResponse->json('access_token');
+    $newRefreshToken = $refreshResponse->json('refresh_token');
+
+    expect($newAccessToken)->not->toBe($accessToken)
+        ->and($newRefreshToken)->not->toBe($refreshToken);
 
     $this->assertGuest('web');
 });
