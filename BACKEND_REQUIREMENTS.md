@@ -9,17 +9,17 @@ and the verified local runtime.
 These are installed or runtime values verified locally; they are not inferred
 from composer.lock.
 
-| Component | Verified value |
-| --- | --- |
-| PHP | 8.5.0 |
-| Laravel framework | 13.31.0 (php artisan --version) |
-| Composer | 2.8.12 |
-| Database | MySQL |
-| Cache store | database |
-| Queue connection | database |
-| Session driver | database |
-| Mailer | SMTP |
-| Application timezone | UTC |
+| Component            | Verified value                  |
+| -------------------- | ------------------------------- |
+| PHP                  | 8.5.0                           |
+| Laravel framework    | 13.31.0 (php artisan --version) |
+| Composer             | 2.8.12                          |
+| Database             | MySQL                           |
+| Cache store          | database                        |
+| Queue connection     | database                        |
+| Session driver       | database                        |
+| Mailer               | SMTP                            |
+| Application timezone | UTC                             |
 
 The database, cache, queue, session, and mail values above were verified with
 Laravel's resolved configuration. config/app.php sets the timezone to UTC.
@@ -32,34 +32,34 @@ vendor/.
 
 ### Runtime dependencies
 
-| Package | composer.json constraint | composer.lock | Installed vendor version |
-| --- | --- | --- | --- |
-| dedoc/scramble | ^0.13.45 | v0.13.45 | Not installed |
-| inertiajs/inertia-laravel | ^3.0 | v3.3.4 | v3.3.4 |
-| laravel/chisel | ^0.1.0 | v0.1.1 | v0.1.1 |
-| laravel/fortify | ^1.37.2 | v1.40.0 | v1.39.0 |
-| laravel/framework | ^13.17 | v13.33.0 | v13.31.0 |
-| laravel/sanctum | ^4.0 | v4.3.3 | v4.3.3 |
-| laravel/tinker | ^3.0 | v3.0.2 | v3.0.2 |
-| laravel/wayfinder | ^0.1.14 | v0.1.21 | v0.1.21 |
-| nesbot/carbon | 3.14.0 | 3.14.0 | 3.13.2 |
-| tymon/jwt-auth | ^2.3 | 2.3.0 | 2.3.0 |
+| Package                   | composer.json constraint | composer.lock | Installed vendor version |
+| ------------------------- | ------------------------ | ------------- | ------------------------ |
+| dedoc/scramble            | ^0.13.45                 | v0.13.45      | Not installed            |
+| inertiajs/inertia-laravel | ^3.0                     | v3.3.4        | v3.3.4                   |
+| laravel/chisel            | ^0.1.0                   | v0.1.1        | v0.1.1                   |
+| laravel/fortify           | ^1.37.2                  | v1.40.0       | v1.39.0                  |
+| laravel/framework         | ^13.17                   | v13.33.0      | v13.31.0                 |
+| laravel/sanctum           | ^4.0                     | v4.3.3        | v4.3.3                   |
+| laravel/tinker            | ^3.0                     | v3.0.2        | v3.0.2                   |
+| laravel/wayfinder         | ^0.1.14                  | v0.1.21       | v0.1.21                  |
+| nesbot/carbon             | 3.14.0                   | 3.14.0        | 3.13.2                   |
+| tymon/jwt-auth            | ^2.3                     | 2.3.0         | 2.3.0                    |
 
 ### Development dependencies
 
-| Package | composer.json constraint | composer.lock | Installed vendor version |
-| --- | --- | --- | --- |
-| fakerphp/faker | ^1.24 | v1.24.1 | v1.24.1 |
-| larastan/larastan | ^3.9 | v3.12.2 | v3.12.0 |
-| laravel/boost | ^2.2 | v2.10.0 | v2.8.1 |
-| laravel/pail | ^1.2.5 | v1.2.7 | v1.2.7 |
-| laravel/pao | ^1.0.6 | v1.1.5 | v1.1.5 |
-| laravel/pint | ^1.27 | v1.32.1 | v1.32.1 |
-| laravel/sail | ^1.53 | v1.68.0 | v1.67.0 |
-| mockery/mockery | ^1.6 | 1.6.15 | 1.6.15 |
-| nunomaduro/collision | ^8.9.3 | v8.9.5 | v8.9.5 |
-| pestphp/pest | ^5.1 | v5.2.1 | v5.1.4 |
-| pestphp/pest-plugin-laravel | ^5.0 | v5.0.1 | v5.0.1 |
+| Package                     | composer.json constraint | composer.lock | Installed vendor version |
+| --------------------------- | ------------------------ | ------------- | ------------------------ |
+| fakerphp/faker              | ^1.24                    | v1.24.1       | v1.24.1                  |
+| larastan/larastan           | ^3.9                     | v3.12.2       | v3.12.0                  |
+| laravel/boost               | ^2.2                     | v2.10.0       | v2.8.1                   |
+| laravel/pail                | ^1.2.5                   | v1.2.7        | v1.2.7                   |
+| laravel/pao                 | ^1.0.6                   | v1.1.5        | v1.1.5                   |
+| laravel/pint                | ^1.27                    | v1.32.1       | v1.32.1                  |
+| laravel/sail                | ^1.53                    | v1.68.0       | v1.67.0                  |
+| mockery/mockery             | ^1.6                     | 1.6.15        | 1.6.15                   |
+| nunomaduro/collision        | ^8.9.3                   | v8.9.5        | v8.9.5                   |
+| pestphp/pest                | ^5.1                     | v5.2.1        | v5.1.4                   |
+| pestphp/pest-plugin-laravel | ^5.0                     | v5.0.1        | v5.0.1                   |
 
 PHP is constrained by composer.json to ^8.4 (>=8.4.0 <9.0.0). Its Composer
 platform target is 8.4.25; that target controls dependency resolution and is
